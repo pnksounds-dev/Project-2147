@@ -1,0 +1,14 @@
+[gd_scene load_steps=2 format=3 uid="uid://j6yhlekd54f0"]
+
+[ext_resource type="Script" path="res://scripts/HUD_Complete.gd" id="1"]
+
+[node name="HUD_Complete" type="CanvasLayer"]
+script = ExtResource("1")
+
+[node name="Control" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2

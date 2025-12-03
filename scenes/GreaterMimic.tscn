@@ -1,0 +1,20 @@
+[gd_scene load_steps=4 format=3 uid="uid://greatermimic"]
+
+[ext_resource type="Script" uid="uid://esoe6j5ppqlj" path="res://scripts/GreaterMimic.gd" id="1_greater"]
+[ext_resource type="Texture2D" uid="uid://52yy8l5lnbl3" path="res://assets/enemies/mimics/Mimic_Greater1.png" id="2_sprite"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_greater"]
+radius = 315.0
+
+[node name="GreaterMimic" type="CharacterBody2D"]
+collision_layer = 2
+collision_mask = 3
+script = ExtResource("1_greater")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+position = Vector2(2, -0.9999962)
+scale = Vector2(5.374, 5.374)
+texture = ExtResource("2_sprite")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_greater")

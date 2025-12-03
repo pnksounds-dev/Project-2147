@@ -1,0 +1,9 @@
+[gd_scene load_steps=2 format=3 uid="uid://bvxj8n7qk4w3z"]
+
+[ext_resource type="Script" path="res://scripts/UI/HealthBar2D.gd" id="1"]
+
+[node name="HealthBar2D" type="Node2D"]
+script = ExtResource("1")
+width = 50.0
+height = 6.0
+y_offset = -30.0

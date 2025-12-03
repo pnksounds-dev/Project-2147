@@ -1,0 +1,30 @@
+[gd_scene load_steps=3 format=3 uid="uid://bvnq8y1x2k3r5"]
+
+[ext_resource type="Script" path="res://scripts/ItemPickup.gd" id="1_abcdef"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_abcdef"]
+size = Vector2(32, 32)
+
+[node name="ItemPickup" type="Area2D"]
+script = ExtResource("1_abcdef")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture_filter = 1
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("RectangleShape2D_abcdef")
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+libraries = {}
+
+[node name="GPUParticles2D" type="GPUParticles2D" parent="."]
+emitting = false
+amount = 20
+lifetime = 1.0
+process_material = SubResource("ParticleProcessMaterial_abcdef")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_abcdef"]
+direction = Vector3(0, -1, 0)
+initial_velocity_min = 20.0
+initial_velocity_max = 50.0
+gravity = Vector3(0, 0, 0)

@@ -1,0 +1,39 @@
+[gd_scene load_steps=4 format=3 uid="uid://bvnq8y1x2k3r6"]
+
+[ext_resource type="Texture2D" path="res://assets/items/Weapons/Phaser/FX_PhaserBeams1.png" id="1_phaser"]
+[ext_resource type="Script" path="res://scripts/weapons/PhaserBeamsWeapon.gd" id="2_phaser"]
+[ext_resource type="AudioStreamWAV" path="res://assets/Audio/weapons/PhaserBeams.wav" id="3_phaser_audio"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_phaser"]
+size = Vector2(64, 16)
+
+[node name="PhaserBeams" type="Node2D"]
+script = ExtResource("2_phaser")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("1_phaser")
+visible = false
+modulate = Color(0.6, 1.0, 1.0, 0.0)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("RectangleShape2D_phaser")
+
+[node name="WeaponEffects" type="Node2D" parent="."]
+
+[node name="MuzzleFlash" type="Sprite2D" parent="WeaponEffects"]
+modulate = Color(1, 1, 1, 0)
+texture = ExtResource("1_phaser")
+
+[node name="ProjectileSpawn" type="Marker2D" parent="WeaponEffects"]
+position = Vector2(32, 0)
+
+[node name="GlowEffect" type="PointLight2D" parent="WeaponEffects"]
+color = Color(0.6, 1.0, 1.0, 1.0)
+energy = 2.0
+texture_scale = 0.3
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+libraries = {}
+
+[node name="AudioStreamPlayer2D" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("3_phaser_audio")

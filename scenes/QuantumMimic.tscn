@@ -1,0 +1,20 @@
+[gd_scene load_steps=4 format=3 uid="uid://quantummimic"]
+
+[ext_resource type="Script" uid="uid://g0rlqgl4r1if" path="res://scripts/QuantumMimic.gd" id="1_quantum"]
+[ext_resource type="Texture2D" uid="uid://74l6uvd36rgb" path="res://assets/enemies/mimics/PlanetVoidMimicLarge.png" id="2_ro58l"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_quantum"]
+radius = 127.06297
+
+[node name="QuantumMimic" type="CharacterBody2D"]
+collision_layer = 2
+collision_mask = 3
+script = ExtResource("1_quantum")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+position = Vector2(1, -1)
+scale = Vector2(2.0039063, 2.0039063)
+texture = ExtResource("2_ro58l")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_quantum")

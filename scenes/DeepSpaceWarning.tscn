@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://dswarning9k2m"]
+
+[ext_resource type="Script" path="res://scripts/DeepSpaceWarning.gd" id="1_DeepSpaceWarning"]
+
+[node name="DeepSpaceWarning" type="Node"]
+script = ExtResource("1_DeepSpaceWarning")

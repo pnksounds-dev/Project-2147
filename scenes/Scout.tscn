@@ -1,0 +1,18 @@
+[gd_scene load_steps=4 format=3 uid="uid://scout"]
+
+[ext_resource type="Script" uid="uid://cht87onqmwyjf" path="res://scripts/Scout.gd" id="1_script"]
+[ext_resource type="Texture2D" uid="uid://cgdewbmp4lk1m" path="res://assets/Ships/FactionShips/ScoutShip.png" id="2_1i25t"]
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_4aaik"]
+height = 40.0
+
+[node name="Scout" type="CharacterBody2D"]
+collision_layer = 0
+collision_mask = 0
+script = ExtResource("1_script")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("2_1i25t")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CapsuleShape2D_4aaik")

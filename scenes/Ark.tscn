@@ -1,0 +1,22 @@
+[gd_scene load_steps=4 format=3 uid="uid://rkship"]
+
+[ext_resource type="Script" uid="uid://b6l3dqoa36f6e" path="res://scripts/Ark.gd" id="1_script"]
+[ext_resource type="Texture2D" uid="uid://betokqb7no8xi" path="res://assets/Ships/Ark/Ark1.png" id="2_sprite"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_1"]
+radius = 3515.6047
+
+[node name="Ark" type="Node2D"]
+script = ExtResource("1_script")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+position = Vector2(-1.999999, 2.9999998)
+scale = Vector2(6.767, 6.767)
+texture = ExtResource("2_sprite")
+
+[node name="StaticBody2D" type="StaticBody2D" parent="."]
+collision_layer = 2
+collision_mask = 5
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="StaticBody2D"]
+shape = SubResource("CircleShape2D_1")

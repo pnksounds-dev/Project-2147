@@ -1,0 +1,222 @@
+[gd_scene load_steps=8 format=3 uid="uid://pausemenu"]
+
+[ext_resource type="Script" uid="uid://cmkwdj44blr8f" path="res://scripts/PauseMenu.gd" id="1_script"]
+[ext_resource type="PackedScene" uid="uid://cw7c5frsgg5dj" path="res://scenes/SettingsPanel.tscn" id="2_settings"]
+[ext_resource type="PackedScene" uid="uid://1bjiw1hoyrh2" path="res://scenes/BackgroundRenderer.tscn" id="4_bg_renderer"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn_normal"]
+bg_color = Color(0, 0, 0, 0)
+border_width_bottom = 2
+border_color = Color(0, 0, 0, 0)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn_pressed"]
+bg_color = Color(0.2, 0.8, 1, 0.25)
+border_width_bottom = 3
+border_color = Color(0.2, 0.8, 1, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn_hover"]
+bg_color = Color(0.2, 0.8, 1, 0.15)
+border_width_bottom = 2
+border_color = Color(0.2, 0.8, 1, 0.8)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn_hover_quit"]
+bg_color = Color(1, 0.2, 0.2, 0.15)
+border_width_bottom = 2
+border_color = Color(1, 0.4, 0.4, 0.8)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+
+[node name="PauseMenu" type="CanvasLayer"]
+process_mode = 3
+layer = 100
+script = ExtResource("1_script")
+
+[node name="BackgroundRenderer" parent="." instance=ExtResource("4_bg_renderer")]
+
+[node name="Overlay" type="TextureRect" parent="."]
+z_index = -80
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+stretch_mode = 7
+
+[node name="Stage" type="ColorRect" parent="."]
+z_index = -60
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = 55.0
+offset_bottom = -55.0
+mouse_filter = 2
+color = Color(0.15, 0.35, 0.6, 0.5)
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Stage"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -150.0
+offset_top = -150.0
+offset_right = 150.0
+offset_bottom = 150.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 15
+alignment = 1
+
+[node name="ResumeButton" type="Button" parent="Stage/VBoxContainer"]
+custom_minimum_size = Vector2(120, 40)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.9, 0.9, 1)
+theme_override_colors/font_hover_color = Color(0.2, 0.8, 1, 1)
+theme_override_font_sizes/font_size = 18
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_normal")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_btn_pressed")
+theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
+text = "Resume"
+flat = true
+
+[node name="SettingsButton" type="Button" parent="Stage/VBoxContainer"]
+custom_minimum_size = Vector2(120, 40)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.9, 0.9, 1)
+theme_override_colors/font_hover_color = Color(0.2, 0.8, 1, 1)
+theme_override_font_sizes/font_size = 18
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_normal")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_btn_pressed")
+theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
+text = "Settings"
+flat = true
+
+[node name="InventoryButton" type="Button" parent="Stage/VBoxContainer"]
+custom_minimum_size = Vector2(120, 40)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.9, 0.9, 1)
+theme_override_colors/font_hover_color = Color(0.2, 0.8, 1, 1)
+theme_override_font_sizes/font_size = 18
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_normal")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_btn_pressed")
+theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
+text = "Inventory"
+flat = true
+
+[node name="BestiaryButton" type="Button" parent="Stage/VBoxContainer"]
+custom_minimum_size = Vector2(120, 40)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.9, 0.9, 1)
+theme_override_colors/font_hover_color = Color(0.2, 0.8, 1, 1)
+theme_override_font_sizes/font_size = 18
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_normal")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_btn_pressed")
+theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
+text = "Bestiary"
+flat = true
+
+[node name="StellariumButton" type="Button" parent="Stage/VBoxContainer"]
+custom_minimum_size = Vector2(120, 40)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.9, 0.9, 1)
+theme_override_colors/font_hover_color = Color(0.2, 0.8, 1, 1)
+theme_override_font_sizes/font_size = 18
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_normal")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_btn_pressed")
+theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
+text = "Stellarium"
+flat = true
+
+[node name="QuitButton" type="Button" parent="Stage/VBoxContainer"]
+custom_minimum_size = Vector2(120, 40)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.9, 0.9, 1)
+theme_override_colors/font_hover_color = Color(1, 0.4, 0.4, 1)
+theme_override_font_sizes/font_size = 18
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_normal")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_btn_pressed")
+theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover_quit")
+text = "Save & Quit"
+flat = true
+
+[node name="TopBar" type="ColorRect" parent="."]
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 55.0
+mouse_filter = 2
+color = Color(0.4, 0.4, 0.4, 1)
+
+[node name="BottomBar" type="ColorRect" parent="."]
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -55.0
+mouse_filter = 2
+color = Color(0.4, 0.4, 0.4, 1)
+
+[node name="TopBarContainer" type="HBoxContainer" parent="."]
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 55.0
+grow_horizontal = 2
+theme_override_constants/separation = 0
+
+[node name="TopBarLeft" type="HBoxContainer" parent="TopBarContainer"]
+custom_minimum_size = Vector2(250, 0)
+layout_mode = 2
+theme_override_constants/separation = 12
+alignment = 1
+
+[node name="GameTitle" type="Label" parent="TopBarContainer/TopBarLeft"]
+layout_mode = 2
+size_flags_vertical = 1
+theme_override_colors/font_color = Color(0.95, 0.95, 0.95, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.5)
+theme_override_constants/outline_size = 2
+theme_override_font_sizes/font_size = 24
+text = "Project: 2147"
+vertical_alignment = 1
+
+[node name="TopBarCenter" type="CenterContainer" parent="TopBarContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="PauseTitle" type="Label" parent="TopBarContainer/TopBarCenter"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 0.8, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.5)
+theme_override_constants/outline_size = 2
+theme_override_font_sizes/font_size = 28
+text = "PAUSED"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="TopBarRight" type="HBoxContainer" parent="TopBarContainer"]
+custom_minimum_size = Vector2(250, 0)
+layout_mode = 2
+theme_override_constants/separation = 16
+alignment = 2
+
+[node name="VersionLabel" type="Label" parent="TopBarContainer/TopBarRight"]
+layout_mode = 2
+size_flags_vertical = 1
+theme_override_colors/font_color = Color(0.2, 0.8, 1, 1)
+theme_override_font_sizes/font_size = 16
+text = "1.0.0"
+vertical_alignment = 1
+
+[node name="SettingsPanel" parent="." instance=ExtResource("2_settings")]
+visible = false
+offset_left = 50.0
+offset_top = 70.0
+offset_right = -50.0
+offset_bottom = -70.0
+
+[connection signal="back_requested" from="SettingsPanel" to="." method="_on_settings_back_pressed"]

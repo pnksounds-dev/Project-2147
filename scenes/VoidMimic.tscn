@@ -1,0 +1,19 @@
+[gd_scene load_steps=4 format=3 uid="uid://voidmimic"]
+
+[ext_resource type="Script" uid="uid://cj4vly4t6tiib" path="res://scripts/VoidMimic.gd" id="1_void"]
+[ext_resource type="Texture2D" uid="uid://74l6uvd36rgb" path="res://assets/enemies/mimics/PlanetVoidMimicLarge.png" id="2_w5r7c"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_void"]
+radius = 219.08218
+
+[node name="VoidMimic" type="CharacterBody2D"]
+collision_layer = 2
+collision_mask = 3
+script = ExtResource("1_void")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+scale = Vector2(3.609375, 3.609375)
+texture = ExtResource("2_w5r7c")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_void")

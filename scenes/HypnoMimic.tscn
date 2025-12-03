@@ -1,0 +1,21 @@
+[gd_scene load_steps=4 format=3 uid="uid://hypnomimic"]
+
+[ext_resource type="Script" uid="uid://ctnoft7l0lg36" path="res://scripts/HypnoMimic.gd" id="1_hypno"]
+[ext_resource type="Texture2D" uid="uid://hyu5kpwwsc7s" path="res://assets/enemies/mimics/Mimic_Hypno.png" id="2_j5g15"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_hypno"]
+radius = 230.48862
+
+[node name="HypnoMimic" type="CharacterBody2D"]
+collision_layer = 2
+collision_mask = 3
+script = ExtResource("1_hypno")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+position = Vector2(1, 0)
+scale = Vector2(3.9375, 3.9375)
+texture = ExtResource("2_j5g15")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(0, 1)
+shape = SubResource("CircleShape2D_hypno")

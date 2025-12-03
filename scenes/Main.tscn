@@ -1,0 +1,51 @@
+[gd_scene load_steps=14 format=3 uid="uid://main"]
+
+[ext_resource type="Script" uid="uid://ftymcretu8sr" path="res://scripts/Main.gd" id="1_main"]
+[ext_resource type="Script" uid="uid://bmmqny1obnyic" path="res://scripts/EnemySpawner.gd" id="3_enemy_spawner"]
+[ext_resource type="PackedScene" uid="uid://j6yhlekd54f0" path="res://scenes/HUD_Complete.tscn" id="4_hud"]
+[ext_resource type="Script" uid="uid://c70ch0nfa3xm5" path="res://scripts/GameInitializer.gd" id="5_game_initializer"]
+[ext_resource type="Script" uid="uid://mmq5baqa7v0v" path="res://scripts/TerritoryManager.gd" id="6_territory_manager"]
+[ext_resource type="Script" uid="uid://w8ffwt64x6eb" path="res://scripts/ChunkManager.gd" id="7_chunk_manager"]
+[ext_resource type="Script" uid="uid://ddv1abhtw01k5" path="res://scripts/TerritorySpawner.gd" id="8_territory_spawner"]
+[ext_resource type="Script" uid="uid://cm7osm8ss5joo" path="res://scripts/DynamicBackground.gd" id="9_dynamic_background"]
+[ext_resource type="PackedScene" uid="uid://inventoryui" path="res://scenes/InventoryUI.tscn" id="10_inventory"]
+[ext_resource type="PackedScene" path="res://scenes/InventoryState.tscn" id="14_inventory_state"]
+[ext_resource type="Script" path="res://scripts/FactionManager.gd" id="11_faction_manager"]
+[ext_resource type="Script" path="res://scripts/SpawnManager.gd" id="12_spawn_manager"]
+[ext_resource type="PackedScene" uid="uid://bvnv8qrl8k7q" path="res://scenes/AudioManager.tscn" id="13_audio_manager"]
+
+[node name="Main" type="Node2D"]
+script = ExtResource("1_main")
+
+[node name="AudioManager" parent="." instance=ExtResource("13_audio_manager")]
+
+[node name="HUD" parent="." instance=ExtResource("4_hud")]
+
+[node name="ParallaxBackground" type="ParallaxBackground" parent="."]
+script = ExtResource("9_dynamic_background")
+texture_scale_factor = 8.0
+
+[node name="EnemySpawner" type="Node2D" parent="."]
+script = ExtResource("3_enemy_spawner")
+
+[node name="GameInitializer" type="Node" parent="."]
+script = ExtResource("5_game_initializer")
+
+[node name="TerritoryManager" type="Node" parent="."]
+script = ExtResource("6_territory_manager")
+
+[node name="ChunkManager" type="Node" parent="."]
+script = ExtResource("7_chunk_manager")
+
+[node name="TerritorySpawner" type="Node" parent="."]
+script = ExtResource("8_territory_spawner")
+
+[node name="FactionManager" type="Node" parent="."]
+script = ExtResource("11_faction_manager")
+
+[node name="SpawnManager" type="Node" parent="."]
+script = ExtResource("12_spawn_manager")
+
+[node name="InventoryUI" parent="." instance=ExtResource("10_inventory")]
+
+[node name="InventoryState" parent="." instance=ExtResource("14_inventory_state")]

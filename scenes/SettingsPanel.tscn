@@ -1,0 +1,447 @@
+[gd_scene load_steps=9 format=3 uid="uid://cw7c5frsgg5dj"]
+
+[ext_resource type="Script" path="res://scripts/SettingsPanel.gd" id="1_script"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_panel"]
+bg_color = Color(0, 0, 0, 0)
+border_width_left = 0
+border_width_right = 0
+border_width_top = 0
+border_width_bottom = 0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_section"]
+bg_color = Color(0.08, 0.12, 0.18, 0.7)
+border_color = Color(0.2, 0.8, 1, 0.3)
+border_width_left = 1
+border_width_right = 1
+border_width_top = 1
+border_width_bottom = 1
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_left = 6
+corner_radius_bottom_right = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_button"]
+bg_color = Color(0, 0, 0, 0)
+border_width_bottom = 2
+border_color = Color(0, 0, 0, 0)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_button_pressed"]
+bg_color = Color(0.2, 0.8, 1, 0.25)
+border_width_bottom = 3
+border_color = Color(0.2, 0.8, 1, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_button_hover"]
+bg_color = Color(0.2, 0.8, 1, 0.15)
+border_width_bottom = 2
+border_color = Color(0.2, 0.8, 1, 0.8)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_button_apply"]
+bg_color = Color(0.2, 0.8, 1, 0.2)
+border_width_left = 2
+border_width_right = 2
+border_width_top = 2
+border_width_bottom = 2
+border_color = Color(0.2, 0.8, 1, 1.0)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_left = 4
+corner_radius_bottom_right = 4
+
+[node name="SettingsPanel" type="PanelContainer"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 20.0
+offset_top = 20.0
+offset_right = -20.0
+offset_bottom = -20.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
+script = ExtResource("1_script")
+
+[node name="ScrollContainer" type="ScrollContainer" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 20.0
+offset_top = 20.0
+offset_right = -20.0
+offset_bottom = -20.0
+horizontal_scroll_mode = 0
+
+[node name="VBoxContainer" type="VBoxContainer" parent="ScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 20
+
+[node name="Title" type="Label" parent="ScrollContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 28
+theme_override_colors/font_color = Color(0.3, 0.8, 1.0, 1)
+text = "SETTINGS"
+horizontal_alignment = 1
+
+[node name="AudioSection" type="PanelContainer" parent="ScrollContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_section")
+
+[node name="AudioVBox" type="VBoxContainer" parent="ScrollContainer/VBoxContainer/AudioSection"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="AudioLabel" type="Label" parent="ScrollContainer/VBoxContainer/AudioSection/AudioVBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+theme_override_colors/font_color = Color(0.8, 0.8, 0.8, 1)
+text = "Audio"
+
+[node name="MasterRow" type="HBoxContainer" parent="ScrollContainer/VBoxContainer/AudioSection/AudioVBox"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="MasterLabel" type="Label" parent="ScrollContainer/VBoxContainer/AudioSection/AudioVBox/MasterRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(80, 0)
+theme_override_colors/font_color = Color(0.9, 0.9, 0.9, 1)
+text = "Master"
+vertical_alignment = 1
+
+[node name="MasterSlider" type="HSlider" parent="ScrollContainer/VBoxContainer/AudioSection/AudioVBox/MasterRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+max_value = 100.0
+value = 80.0
+
+[node name="MasterValue" type="Label" parent="ScrollContainer/VBoxContainer/AudioSection/AudioVBox/MasterRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(45, 0)
+theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
+text = "80%"
+vertical_alignment = 1
+
+[node name="MusicRow" type="HBoxContainer" parent="ScrollContainer/VBoxContainer/AudioSection/AudioVBox"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="MusicLabel" type="Label" parent="ScrollContainer/VBoxContainer/AudioSection/AudioVBox/MusicRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(80, 0)
+theme_override_colors/font_color = Color(0.9, 0.9, 0.9, 1)
+text = "Music"
+vertical_alignment = 1
+
+[node name="MusicSlider" type="HSlider" parent="ScrollContainer/VBoxContainer/AudioSection/AudioVBox/MusicRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+max_value = 100.0
+value = 60.0
+
+[node name="MusicValue" type="Label" parent="ScrollContainer/VBoxContainer/AudioSection/AudioVBox/MusicRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(45, 0)
+theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
+text = "60%"
+vertical_alignment = 1
+
+[node name="SfxRow" type="HBoxContainer" parent="ScrollContainer/VBoxContainer/AudioSection/AudioVBox"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="SfxLabel" type="Label" parent="ScrollContainer/VBoxContainer/AudioSection/AudioVBox/SfxRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(80, 0)
+theme_override_colors/font_color = Color(0.9, 0.9, 0.9, 1)
+text = "SFX"
+vertical_alignment = 1
+
+[node name="SfxSlider" type="HSlider" parent="ScrollContainer/VBoxContainer/AudioSection/AudioVBox/SfxRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+max_value = 100.0
+value = 90.0
+
+[node name="SfxValue" type="Label" parent="ScrollContainer/VBoxContainer/AudioSection/AudioVBox/SfxRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(45, 0)
+theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
+text = "90%"
+vertical_alignment = 1
+
+[node name="GraphicsSection" type="PanelContainer" parent="ScrollContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_section")
+
+[node name="GraphicsVBox" type="VBoxContainer" parent="ScrollContainer/VBoxContainer/GraphicsSection"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="GraphicsLabel" type="Label" parent="ScrollContainer/VBoxContainer/GraphicsSection/GraphicsVBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+theme_override_colors/font_color = Color(0.8, 0.8, 0.8, 1)
+text = "Graphics"
+
+[node name="UltraHDCheck" type="CheckBox" parent="ScrollContainer/VBoxContainer/GraphicsSection/GraphicsVBox"]
+layout_mode = 2
+text = "Ultra HD Background"
+
+[node name="SeamlessTilingCheck" type="CheckBox" parent="ScrollContainer/VBoxContainer/GraphicsSection/GraphicsVBox"]
+layout_mode = 2
+text = "Seamless Background Tiling"
+
+[node name="FullscreenCheck" type="CheckBox" parent="ScrollContainer/VBoxContainer/GraphicsSection/GraphicsVBox"]
+layout_mode = 2
+text = "Fullscreen"
+
+[node name="VsyncCheck" type="CheckBox" parent="ScrollContainer/VBoxContainer/GraphicsSection/GraphicsVBox"]
+layout_mode = 2
+text = "VSync"
+
+[node name="ReduceMotionCheck" type="CheckBox" parent="ScrollContainer/VBoxContainer/GraphicsSection/GraphicsVBox"]
+layout_mode = 2
+text = "Reduce Motion"
+
+[node name="ResolutionRow" type="HBoxContainer" parent="ScrollContainer/VBoxContainer/GraphicsSection/GraphicsVBox"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="ResolutionLabel" type="Label" parent="ScrollContainer/VBoxContainer/GraphicsSection/GraphicsVBox/ResolutionRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(80, 0)
+theme_override_colors/font_color = Color(0.9, 0.9, 0.9, 1)
+text = "Resolution"
+vertical_alignment = 1
+
+[node name="ResolutionOption" type="OptionButton" parent="ScrollContainer/VBoxContainer/GraphicsSection/GraphicsVBox/ResolutionRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="UiScaleRow" type="HBoxContainer" parent="ScrollContainer/VBoxContainer/GraphicsSection/GraphicsVBox"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="UiScaleLabel" type="Label" parent="ScrollContainer/VBoxContainer/GraphicsSection/GraphicsVBox/UiScaleRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(80, 0)
+theme_override_colors/font_color = Color(0.9, 0.9, 0.9, 1)
+text = "UI Scale"
+vertical_alignment = 1
+
+[node name="UiScaleOption" type="OptionButton" parent="ScrollContainer/VBoxContainer/GraphicsSection/GraphicsVBox/UiScaleRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(110, 0)
+
+[node name="UiScaleSlider" type="HSlider" parent="ScrollContainer/VBoxContainer/GraphicsSection/GraphicsVBox/UiScaleRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+min_value = 50.0
+max_value = 200.0
+step = 5.0
+value = 100.0
+
+[node name="UiScaleInput" type="LineEdit" parent="ScrollContainer/VBoxContainer/GraphicsSection/GraphicsVBox/UiScaleRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(60, 0)
+theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
+placeholder_text = "100%"
+
+[node name="FovRow" type="HBoxContainer" parent="ScrollContainer/VBoxContainer/GraphicsSection/GraphicsVBox"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="FovLabel" type="Label" parent="ScrollContainer/VBoxContainer/GraphicsSection/GraphicsVBox/FovRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(80, 0)
+theme_override_colors/font_color = Color(0.9, 0.9, 0.9, 1)
+text = "FOV"
+vertical_alignment = 1
+
+[node name="FovMinInput" type="LineEdit" parent="ScrollContainer/VBoxContainer/GraphicsSection/GraphicsVBox/FovRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(50, 0)
+theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
+placeholder_text = "Min"
+text = "1"
+
+[node name="FovSlider" type="HSlider" parent="ScrollContainer/VBoxContainer/GraphicsSection/GraphicsVBox/FovRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+min_value = 1.0
+max_value = 360.0
+value = 75.0
+
+[node name="FovMaxInput" type="LineEdit" parent="ScrollContainer/VBoxContainer/GraphicsSection/GraphicsVBox/FovRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(50, 0)
+theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
+placeholder_text = "Max"
+text = "360"
+
+[node name="FovValue" type="Label" parent="ScrollContainer/VBoxContainer/GraphicsSection/GraphicsVBox/FovRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(45, 0)
+theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
+text = "75°"
+vertical_alignment = 1
+
+[node name="GameplaySection" type="PanelContainer" parent="ScrollContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_section")
+
+[node name="GameplayVBox" type="VBoxContainer" parent="ScrollContainer/VBoxContainer/GameplaySection"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="GameplayLabel" type="Label" parent="ScrollContainer/VBoxContainer/GameplaySection/GameplayVBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+theme_override_colors/font_color = Color(0.8, 0.8, 0.8, 1)
+text = "Gameplay"
+
+[node name="UiRow" type="HBoxContainer" parent="ScrollContainer/VBoxContainer/AudioSection/AudioVBox"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="UiLabel" type="Label" parent="ScrollContainer/VBoxContainer/AudioSection/AudioVBox/UiRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(80, 0)
+theme_override_colors/font_color = Color(0.9, 0.9, 0.9, 1)
+text = "UI"
+vertical_alignment = 1
+
+[node name="UiSlider" type="HSlider" parent="ScrollContainer/VBoxContainer/AudioSection/AudioVBox/UiRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+max_value = 100.0
+value = 80.0
+
+[node name="UiValue" type="Label" parent="ScrollContainer/VBoxContainer/AudioSection/AudioVBox/UiRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(45, 0)
+theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
+text = "80%"
+vertical_alignment = 1
+
+[node name="EnemyRow" type="HBoxContainer" parent="ScrollContainer/VBoxContainer/AudioSection/AudioVBox"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="EnemyLabel" type="Label" parent="ScrollContainer/VBoxContainer/AudioSection/AudioVBox/EnemyRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(80, 0)
+theme_override_colors/font_color = Color(0.9, 0.9, 0.9, 1)
+text = "Enemy"
+vertical_alignment = 1
+
+[node name="EnemySlider" type="HSlider" parent="ScrollContainer/VBoxContainer/AudioSection/AudioVBox/EnemyRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+max_value = 100.0
+value = 80.0
+
+[node name="EnemyValue" type="Label" parent="ScrollContainer/VBoxContainer/AudioSection/AudioVBox/EnemyRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(45, 0)
+theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
+text = "80%"
+vertical_alignment = 1
+
+[node name="PlayerRow" type="HBoxContainer" parent="ScrollContainer/VBoxContainer/AudioSection/AudioVBox"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="PlayerLabel" type="Label" parent="ScrollContainer/VBoxContainer/AudioSection/AudioVBox/PlayerRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(80, 0)
+theme_override_colors/font_color = Color(0.9, 0.9, 0.9, 1)
+text = "Player"
+vertical_alignment = 1
+
+[node name="PlayerSlider" type="HSlider" parent="ScrollContainer/VBoxContainer/AudioSection/AudioVBox/PlayerRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+max_value = 100.0
+value = 80.0
+
+[node name="PlayerValue" type="Label" parent="ScrollContainer/VBoxContainer/AudioSection/AudioVBox/PlayerRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(45, 0)
+theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
+text = "80%"
+vertical_alignment = 1
+
+[node name="WeaponsRow" type="HBoxContainer" parent="ScrollContainer/VBoxContainer/AudioSection/AudioVBox"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="WeaponsLabel" type="Label" parent="ScrollContainer/VBoxContainer/AudioSection/AudioVBox/WeaponsRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(80, 0)
+theme_override_colors/font_color = Color(0.9, 0.9, 0.9, 1)
+text = "Weapons"
+vertical_alignment = 1
+
+[node name="WeaponsSlider" type="HSlider" parent="ScrollContainer/VBoxContainer/AudioSection/AudioVBox/WeaponsRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+max_value = 100.0
+value = 80.0
+
+[node name="WeaponsValue" type="Label" parent="ScrollContainer/VBoxContainer/AudioSection/AudioVBox/WeaponsRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(45, 0)
+theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
+text = "80%"
+vertical_alignment = 1
+
+[node name="DifficultyRow" type="HBoxContainer" parent="ScrollContainer/VBoxContainer/GameplaySection/GameplayVBox"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="DifficultyLabel" type="Label" parent="ScrollContainer/VBoxContainer/GameplaySection/GameplayVBox/DifficultyRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(80, 0)
+theme_override_colors/font_color = Color(0.9, 0.9, 0.9, 1)
+text = "Difficulty"
+vertical_alignment = 1
+
+[node name="DifficultyOption" type="OptionButton" parent="ScrollContainer/VBoxContainer/GameplaySection/GameplayVBox/DifficultyRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="ButtonContainer" type="HBoxContainer" parent="ScrollContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 10
+alignment = 1
+
+[node name="ApplyButton" type="Button" parent="ScrollContainer/VBoxContainer/ButtonContainer"]
+layout_mode = 2
+custom_minimum_size = Vector2(100, 40)
+theme_override_colors/font_color = Color(0.9, 0.9, 0.9, 1)
+theme_override_colors/font_hover_color = Color(0.2, 0.8, 1, 1)
+theme_override_font_sizes/font_size = 16
+theme_override_styles/normal = SubResource("StyleBoxFlat_button")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_button_pressed")
+theme_override_styles/hover = SubResource("StyleBoxFlat_button_hover")
+text = "Apply"
+flat = true
+
+[node name="BackButton" type="Button" parent="ScrollContainer/VBoxContainer/ButtonContainer"]
+layout_mode = 2
+custom_minimum_size = Vector2(100, 40)
+theme_override_colors/font_color = Color(0.9, 0.9, 0.9, 1)
+theme_override_colors/font_hover_color = Color(0.2, 0.8, 1, 1)
+theme_override_font_sizes/font_size = 16
+theme_override_styles/normal = SubResource("StyleBoxFlat_button")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_button_pressed")
+theme_override_styles/hover = SubResource("StyleBoxFlat_button_hover")
+text = "Back"
+flat = true

@@ -1,0 +1,19 @@
+[gd_scene load_steps=4 format=3 uid="uid://wlm5pjuh3uys"]
+
+[ext_resource type="Script" uid="uid://cccpivkoyrqei" path="res://scripts/InfectedMimic.gd" id="1_infected"]
+[ext_resource type="Texture2D" uid="uid://c3ynsva22dkvv" path="res://assets/enemies/mimics/Mimic_Infected.png" id="2_sprite"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_infected"]
+radius = 159.11317
+
+[node name="InfectedMimic" type="CharacterBody2D"]
+collision_layer = 2
+collision_mask = 3
+script = ExtResource("1_infected")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+scale = Vector2(2.640625, 2.640625)
+texture = ExtResource("2_sprite")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_infected")
