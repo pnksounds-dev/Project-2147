@@ -5,12 +5,12 @@ class_name Ark
 # Stationary faction hub that spawns Motherships
 
 @export var rotation_speed: float = 0.01  # Slower rotation for better visibility
-@export var spawn_interval: float = 30.0
-@export var max_motherships: int = 6  # Changed to 6 as requested
+@export var spawn_interval: float = 10.0
+@export var max_motherships: int = 10  # Changed to 6 as requested
 @export var home_position: Vector2 = Vector2.ZERO
-@export var inner_patrol_radius: float = 500.0  # Inner patrol route radius
-@export var outer_patrol_radius: float = 700.0  # Outer patrol route radius
-@export var patrol_speed: float = 50.0  # Speed for mothership patrol movement
+@export var inner_patrol_radius: float = 10000.0  # Inner patrol route radius
+@export var outer_patrol_radius: float = 2000.0  # Outer patrol route radius
+@export var patrol_speed: float = 500.0  # Speed for mothership patrol movement
 
 var _sprite: Sprite2D
 var _spawn_timer: float = 0.0

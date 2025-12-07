@@ -1,10 +1,10 @@
 [gd_scene load_steps=4 format=3 uid="uid://enemy"]
 
-[ext_resource type="Script" uid="uid://c2cgldtknkmsv" path="res://scripts/Enemy.gd" id="1_enemy"]
+[ext_resource type="Script" uid="uid://c2cgldtknkmsv" path="res://scripts/DroneMimic.gd" id="1_enemy"]
 [ext_resource type="Texture2D" uid="uid://f0n34pq5awxe" path="res://assets/enemies/mimics/Mimic_Drone.png" id="2_sprite"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_enemy"]
-radius = 287.02786
+radius = 243.2686
 
 [node name="Enemy" type="CharacterBody2D"]
 collision_layer = 2
@@ -12,8 +12,11 @@ collision_mask = 3
 script = ExtResource("1_enemy")
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
-scale = Vector2(4.881, 4.881)
+position = Vector2(-44, -41)
+scale = Vector2(16.356, 16.356)
 texture = ExtResource("2_sprite")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(-30.999998, -30.999998)
+scale = Vector2(3.7, 3.7)
 shape = SubResource("CircleShape2D_enemy")

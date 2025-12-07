@@ -1,36 +1,39 @@
-[gd_scene load_steps=8 format=3 uid="uid://pausemenu"]
+[gd_scene load_steps=10 format=3 uid="uid://pausemenu"]
 
 [ext_resource type="Script" uid="uid://cmkwdj44blr8f" path="res://scripts/PauseMenu.gd" id="1_script"]
 [ext_resource type="PackedScene" uid="uid://cw7c5frsgg5dj" path="res://scenes/SettingsPanel.tscn" id="2_settings"]
 [ext_resource type="PackedScene" uid="uid://1bjiw1hoyrh2" path="res://scenes/BackgroundRenderer.tscn" id="4_bg_renderer"]
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_mainmenu_glass"]
+bg_color = Color(0.05, 0.09, 0.14, 0.85)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.2, 0.45, 0.75, 0.65)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_mainmenu_bar"]
+bg_color = Color(0.16, 0.16, 0.2, 0.98)
+
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn_normal"]
 bg_color = Color(0, 0, 0, 0)
 border_width_bottom = 2
 border_color = Color(0, 0, 0, 0)
-corner_radius_top_left = 4
-corner_radius_top_right = 4
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn_pressed"]
 bg_color = Color(0.2, 0.8, 1, 0.25)
 border_width_bottom = 3
 border_color = Color(0.2, 0.8, 1, 1)
-corner_radius_top_left = 4
-corner_radius_top_right = 4
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn_hover"]
 bg_color = Color(0.2, 0.8, 1, 0.15)
 border_width_bottom = 2
 border_color = Color(0.2, 0.8, 1, 0.8)
-corner_radius_top_left = 4
-corner_radius_top_right = 4
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn_hover_quit"]
 bg_color = Color(1, 0.2, 0.2, 0.15)
 border_width_bottom = 2
 border_color = Color(1, 0.4, 0.4, 0.8)
-corner_radius_top_left = 4
-corner_radius_top_right = 4
 
 [node name="PauseMenu" type="CanvasLayer"]
 process_mode = 3
@@ -47,7 +50,7 @@ anchor_bottom = 1.0
 mouse_filter = 2
 stretch_mode = 7
 
-[node name="Stage" type="ColorRect" parent="."]
+[node name="Stage" type="Panel" parent="."]
 z_index = -60
 anchors_preset = 15
 anchor_right = 1.0
@@ -55,7 +58,7 @@ anchor_bottom = 1.0
 offset_top = 55.0
 offset_bottom = -55.0
 mouse_filter = 2
-color = Color(0.15, 0.35, 0.6, 0.5)
+theme_override_styles/panel = SubResource("StyleBoxFlat_mainmenu_glass")
 
 [node name="VBoxContainer" type="VBoxContainer" parent="Stage"]
 layout_mode = 1
@@ -109,6 +112,18 @@ theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
 text = "Inventory"
 flat = true
 
+[node name="DebugButton" type="Button" parent="Stage/VBoxContainer"]
+custom_minimum_size = Vector2(120, 40)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.9, 0.9, 1)
+theme_override_colors/font_hover_color = Color(0.2, 0.8, 1, 1)
+theme_override_font_sizes/font_size = 18
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_normal")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_btn_pressed")
+theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
+text = "Debug"
+flat = true
+
 [node name="BestiaryButton" type="Button" parent="Stage/VBoxContainer"]
 custom_minimum_size = Vector2(120, 40)
 layout_mode = 2
@@ -145,21 +160,21 @@ theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover_quit")
 text = "Save & Quit"
 flat = true
 
-[node name="TopBar" type="ColorRect" parent="."]
+[node name="TopBar" type="Panel" parent="."]
 anchors_preset = 10
 anchor_right = 1.0
 offset_bottom = 55.0
 mouse_filter = 2
-color = Color(0.4, 0.4, 0.4, 1)
+theme_override_styles/panel = SubResource("StyleBoxFlat_mainmenu_bar")
 
-[node name="BottomBar" type="ColorRect" parent="."]
+[node name="BottomBar" type="Panel" parent="."]
 anchors_preset = 12
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
 offset_top = -55.0
 mouse_filter = 2
-color = Color(0.4, 0.4, 0.4, 1)
+theme_override_styles/panel = SubResource("StyleBoxFlat_mainmenu_bar")
 
 [node name="TopBarContainer" type="HBoxContainer" parent="."]
 anchors_preset = 10

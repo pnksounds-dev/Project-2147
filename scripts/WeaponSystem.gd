@@ -4,9 +4,8 @@ class_name WeaponSystem
 ## WeaponSystem - Manages player weapons and switching
 ## Supports Bullet and Phaser weapons with distinct firing mechanics
 
-# Import AudioManager class with non-shadowing name
-const AudioManagerClass = preload("res://scripts/AudioManager.gd")
 const ScoutPhaserClass = preload("res://scripts/ScoutPhaser.gd")
+const InventorySlotTypeClass = preload("res://scripts/InventorySlotType.gd")
 
 signal weapon_switched(weapon_type: int)
 signal weapon_fired(weapon_type: int)
@@ -19,7 +18,7 @@ enum WeaponType {
 }
 
 # Audio manager reference
-@onready var audio_manager: AudioManagerClass = get_tree().get_first_node_in_group("audio_manager")
+@onready var audio_manager: AudioManager = get_tree().get_first_node_in_group("audio_manager")
 
 # Performance optimization - Object pools
 var bullet_pool: ObjectPool
@@ -193,7 +192,7 @@ func _get_weapon_slot_data() -> Dictionary:
 	var inventory_state: InventoryState = get_tree().get_first_node_in_group("inventory")
 	if not inventory_state:
 		return {}
-	var weapon_slots = [InventoryState.SlotType.WEAPON1, InventoryState.SlotType.WEAPON2]
+	var weapon_slots = [InventorySlotTypeClass.SlotType.WEAPON1, InventorySlotTypeClass.SlotType.WEAPON2]
 	for slot_type in weapon_slots:
 		var inst := inventory_state.get_equipped_item(slot_type)
 		if not inst.is_empty():
@@ -222,7 +221,7 @@ func get_current_weapon_from_inventory() -> WeaponType:
 		print("WeaponSystem: No InventoryState found")
 		return WeaponType.BULLET  # Default fallback
 	
-	var weapon_slot := inventory_state.get_equipped_item(InventoryState.SlotType.WEAPON1)
+	var weapon_slot := inventory_state.get_equipped_item(InventorySlotTypeClass.SlotType.WEAPON1)
 	var weapon_id = weapon_slot.get("item_id", "").to_lower()
 	
 	print("WeaponSystem: Weapon slot contains item_id: ", weapon_id)
@@ -452,7 +451,7 @@ func auto_fire_weapons_if_needed():
 	var phaser_found = false
 	var turret_found = false
 	
-	var passive_slots = [InventoryState.SlotType.PASSIVE1, InventoryState.SlotType.PASSIVE2, InventoryState.SlotType.ACCESSORY]
+	var passive_slots = [InventorySlotTypeClass.SlotType.PASSIVE1, InventorySlotTypeClass.SlotType.PASSIVE2, InventorySlotTypeClass.SlotType.ACCESSORY]
 	for slot_type in passive_slots:
 		var inst := inventory_state.get_equipped_item(slot_type)
 		if inst.is_empty():

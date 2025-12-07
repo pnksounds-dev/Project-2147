@@ -95,9 +95,6 @@ func _initialize_game_systems():
 	# Create ScoreTracker with error handling
 	try_create_system("ScoreTracker", "res://scripts/ScoreTracker.gd", ["score_tracker"])
 	
-	# Create EconomySystem with error handling  
-	try_create_system("EconomySystem", "res://scripts/EconomySystem.gd", ["economy_system"])
-	
 	# Create SkillSystem with error handling
 	try_create_system("SkillSystem", "res://scripts/SkillSystem.gd", ["skill_system"])
 	
@@ -107,8 +104,23 @@ func _initialize_game_systems():
 	# Create PerformanceMonitor for system health
 	try_create_system("PerformanceMonitor", "res://scripts/PerformanceMonitor.gd", ["performance_monitor"])
 	
-	# Create Debug Menu for development testing
-	try_create_system("DebugMenu", "res://scripts/DebugMenu.gd", ["debug_menu"])
+	# Create Debug Menu for development testing (prefer scene, fallback to script)
+	var debug_menu_scene := load("res://scenes/DebugMenu.tscn")
+	if debug_menu_scene and debug_menu_scene is PackedScene:
+		var debug_menu_instance = debug_menu_scene.instantiate()
+		if debug_menu_instance:
+			debug_menu_instance.name = "DebugMenu"
+			# Embed between top/bottom UI bars and let PauseMenu control visibility
+			if "embed_in_layout" in debug_menu_instance:
+				debug_menu_instance.embed_in_layout = true
+			if "debug_enabled" in debug_menu_instance:
+				debug_menu_instance.debug_enabled = false
+			add_child(debug_menu_instance)
+			debug_menu_instance.add_to_group("debug_menu")
+			print("Main: Successfully created DebugMenu from scene")
+	else:
+		print("Main: WARNING - Could not load DebugMenu.tscn, falling back to script")
+		try_create_system("DebugMenu", "res://scripts/DebugMenu.gd", ["debug_menu"])
 	
 	print("Main: Game systems initialization complete")
 
@@ -149,8 +161,8 @@ func _connect_systems_to_hud():
 		score_tracker.score_changed.connect(hud_node.update_score)
 		print("Main: Connected ScoreTracker to HUD")
 	
-	# Connect EconomySystem to HUD
-	var economy_system = get_node_or_null("EconomySystem")
+	# Connect EconomySystem autoload to HUD
+	var economy_system = get_node_or_null("/root/EconomySystem")
 	if economy_system:
 		economy_system.coins_changed.connect(hud_node.update_coins)
 		print("Main: Connected EconomySystem to HUD")
@@ -182,8 +194,8 @@ func _connect_player_to_systems():
 		# This would need to be implemented in the player's damage/death functions
 		print("Main: Connected Player to ScoreTracker")
 	
-	# Connect player to EconomySystem
-	var economy_system = get_node_or_null("EconomySystem")
+	# Connect player to EconomySystem autoload
+	var economy_system = get_node_or_null("/root/EconomySystem")
 	if economy_system:
 		# Connect level ups to coin bonuses
 		if player_node.has_signal("level_changed"):
@@ -253,7 +265,13 @@ func _add_game_components():
 	print("Main: Added Pause Menu")
 	
 	# Get reference to existing Inventory UI from scene
-	var inventory_ui = get_node_or_null("InventoryUI")
+	var inventory_ui = get_tree().get_first_node_in_group("inventory_ui")
+	if not inventory_ui:
+		# Fallback: check inside InventoryLayer
+		var inv_layer = get_node_or_null("InventoryLayer")
+		if inv_layer:
+			inventory_ui = inv_layer.get_node_or_null("InventoryUI")
+
 	if inventory_ui:
 		# Connect inventory signals
 		inventory_ui.add_to_group("inventory_ui")
@@ -264,6 +282,8 @@ func _add_game_components():
 	
 	if pause_menu:
 		pause_menu.inventory_requested.connect(_on_inventory_requested)
+		pause_menu.bestiary_requested.connect(_on_bestiary_requested)
+		pause_menu.stellarium_requested.connect(_on_stellarium_requested)
 		print("Main: Connected pause menu inventory signal")
 
 func _on_inventory_requested():
@@ -274,6 +294,18 @@ func _on_inventory_requested():
 		if not inventory_ui.visible:
 			inventory_ui.toggle_inventory()
 		print("Main: Opened inventory from pause menu")
+
+func _on_bestiary_requested():
+	print("Main: Bestiary requested (Not implemented)")
+	var hud_node = get_node_or_null("HUD")
+	if hud_node and hud_node.has_method("show_message"):
+		hud_node.show_message("Bestiary coming soon!")
+
+func _on_stellarium_requested():
+	print("Main: Stellarium requested (Not implemented)")
+	var hud_node = get_node_or_null("HUD")
+	if hud_node and hud_node.has_method("show_message"):
+		hud_node.show_message("Stellarium coming soon!")
 
 func _on_inventory_closed():
 	print("Main: Inventory closed")

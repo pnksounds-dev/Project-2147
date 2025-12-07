@@ -2,6 +2,7 @@ extends "res://scripts/DebugSection.gd"
 class_name DebugInventorySection
 
 var inventory_ui: Node
+var inventory_state: InventoryState
 
 # All items with existing assets
 const ALL_ITEMS: Array[Dictionary] = [
@@ -79,12 +80,14 @@ func get_debug_content() -> Control:
 		var tree = Engine.get_main_loop() as SceneTree
 		if tree:
 			inventory_ui = tree.get_first_node_in_group("inventory_ui")
-	
+			inventory_state = tree.get_first_node_in_group("inventory")
+		
 	var container = create_container(true, 4)
 	
 	# Status
 	var status = create_section("Status")
-	var inv_info = create_label("Inventory: " + ("OK" if inventory_ui else "N/A"), Color.GREEN if inventory_ui else Color.RED)
+	var has_inventory := inventory_state != null
+	var inv_info = create_label("Inventory: " + ("OK" if has_inventory else "N/A"), Color.GREEN if has_inventory else Color.RED)
 	status.add_child(inv_info)
 	container.add_child(status)
 	
@@ -157,57 +160,54 @@ func _toggle_inventory():
 	log_message("Inventory toggled")
 
 func _add_item(item_data: Dictionary):
-	if not inventory_ui or not inventory_ui.has_method("add_item"):
-		log_message("No inventory UI")
+	if not inventory_state:
+		log_message("No InventoryState")
 		return
-	var item = {
+	var inv_item := {
+		"id": item_data.name,
 		"name": item_data.name,
-		"type": item_data.type,
-		"asset": item_data.asset,
-		"quantity": 1
 	}
-	inventory_ui.add_item(item)
-	log_message("Added: " + item_data.name)
+	var success := inventory_state.add_item(inv_item, 1)
+	if success:
+		log_message("Added: " + item_data.name)
+	else:
+		log_message("Failed to add: " + item_data.name)
 
 func _add_all_items():
-	if not inventory_ui or not inventory_ui.has_method("add_item"):
-		log_message("No inventory UI")
+	if not inventory_state:
+		log_message("No InventoryState")
 		return
 	for item_data in ALL_ITEMS:
-		var item = {
-			"name": item_data.name,
-			"type": item_data.type,
-			"asset": item_data.asset,
-			"quantity": 1
-		}
-		inventory_ui.add_item(item)
+		_add_item(item_data)
 	log_message("Added ALL %d items!" % ALL_ITEMS.size())
 
 func _add_category(category: String):
-	if not inventory_ui or not inventory_ui.has_method("add_item"):
-		log_message("No inventory UI")
+	if not inventory_state:
+		log_message("No InventoryState")
 		return
 	var count = 0
 	for item_data in ALL_ITEMS:
 		if item_data.type == category:
-			var item = {
-				"name": item_data.name,
-				"type": item_data.type,
-				"asset": item_data.asset,
-				"quantity": 1
-			}
-			inventory_ui.add_item(item)
+			_add_item(item_data)
 			count += 1
 	log_message("Added %d %s items" % [count, category])
 
 func _clear_inventory():
-	if not inventory_ui:
-		log_message("No inventory UI")
+	if not inventory_state:
+		log_message("No InventoryState")
 		return
-	if "inventory_items" in inventory_ui:
-		inventory_ui.inventory_items.clear()
-	if "special_slots" in inventory_ui:
-		inventory_ui.special_slots.clear()
-	if inventory_ui.has_method("_populate_inventory"):
+	
+	# Clear all cargo slots
+	for i in range(inventory_state.get_cargo_slot_count()):
+		inventory_state.clear_cargo_slot(i)
+	
+	# Unequip all equipped items
+	var equip_slots: Array = inventory_state.get_equipment_slots()
+	for slot in equip_slots:
+		inventory_state.unequip_item(slot)
+	
+	# Refresh UI if present
+	if inventory_ui and inventory_ui.has_method("_populate_inventory"):
 		inventory_ui._populate_inventory()
+	
 	log_message("Inventory cleared")

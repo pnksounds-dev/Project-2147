@@ -112,14 +112,15 @@ func _set_weapon_texture_for_level():
 func create_firing_animations():
 	"""Create phaser firing animations"""
 	if not animation_player:
-		print("PhaserBeamsWeapon: No animation player found")
 		return
 
 	# Create animation library directly instead of trying to get existing one
 	var anim_library = AnimationLibrary.new()
+	if anim_library == null:
+		return
+	
 	var result = animation_player.add_animation_library(DEFAULT_ANIM_LIBRARY, anim_library)
 	if result != OK:
-		print("PhaserBeamsWeapon: Failed to add animation library, error: ", result)
 		return  # Exit early if library creation failed
 
 	if anim_library.has_animation("muzzle_flash"):
@@ -188,17 +189,14 @@ func fire_weapon_auto(weapon_owner: Node2D = null, preferred_target_position: Ve
 	if not target_enemy:
 		target_enemy = find_nearest_enemy(enemies, weapon_owner)
 	if not target_enemy:
-		print("PhaserBeams: Auto fire aborted - no targets found")
 		return false
 	
 	return create_phaser_beam(target_enemy.global_position, weapon_owner, false, target_enemy)
 
 func create_phaser_beam(target_position: Vector2, weapon_owner: Node2D, is_manual: bool, target_enemy: Node2D = null) -> bool:
 	"""Create ScoutPhaser beam instance"""
-	print("PhaserBeams: create_phaser_beam called - is_manual: ", is_manual, " target: ", target_position)
 	
 	if not weapon_owner:
-		print("PhaserBeams: No owner node provided")
 		PhaserLogger.log_message("PhaserBeamsWeapon", "create_phaser_beam aborted - missing owner")
 		return false
 	
@@ -211,21 +209,17 @@ func create_phaser_beam(target_position: Vector2, weapon_owner: Node2D, is_manua
 	# Create beam instance
 	current_beam = ScoutPhaserClass.new()
 	current_beam.name = "PhaserBeam_" + str(weapon_owner.get_instance_id())
-	print("PhaserBeams: Created beam instance: ", current_beam.name)
 	
 	# Configure beam with level-based damage
 	current_beam.damage_per_second = beam_damage_per_second
 	current_beam.beam_width = beam_width
 	current_beam.max_length = beam_max_length
 	current_beam.lifetime = beam_lifetime
-	print("PhaserBeams: Configured beam - damage: ", beam_damage_per_second, " width: ", beam_width)
 	
 	manual_mode_active = is_manual
 	if is_manual:
 		# Manual control - follow mouse
-		print("PhaserBeams: Setting up manual beam")
 		current_beam.setup_manual(weapon_owner, target_position, weapon_owner)
-		print("PhaserBeams: Manual beam created at level ", weapon_level)
 	else:
 		# Auto-targeting
 		var resolved_target = target_enemy
@@ -234,33 +228,24 @@ func create_phaser_beam(target_position: Vector2, weapon_owner: Node2D, is_manua
 			resolved_target = find_nearest_enemy(enemies, weapon_owner)
 		if resolved_target:
 			current_beam.setup(weapon_owner, resolved_target, weapon_owner, beam_lifetime)
-			print("PhaserBeams: Auto-targeting beam created at level ", weapon_level)
 		else:
-			print("PhaserBeams: No enemies found for auto-targeting")
 			current_beam.queue_free()
 			current_beam = null
 			return false
 	
 	# Add beam to scene
 	get_tree().current_scene.add_child(current_beam)
-	print("PhaserBeams: Added beam to scene tree")
 	
 	# Connect signals
 	current_beam.beam_ended.connect(_on_beam_ended)
 	current_beam.hit_target.connect(_on_target_hit)
-	print("PhaserBeams: Connected beam signals")
 	
 	# Play effects
 	play_firing_effects()
 	
-	# Start timeout timer
-	if beam_timeout_timer:
-		beam_timeout_timer.start()
-	
 	is_firing = true
 	fire_timer = 1.0 / fire_rate
 	
-	print("PhaserBeams: Beam creation complete - is_firing: ", is_firing)
 	return true
 
 func find_nearest_enemy(enemies: Array, weapon_owner: Node2D) -> Node2D:
@@ -331,42 +316,33 @@ func _configure_audio_player() -> void:
 
 func stop_firing():
 	"""Stop the phaser beam and emit weapon_stopped signal"""
-	print("PhaserBeams: stop_firing called")
 	PhaserLogger.log_message("PhaserBeamsWeapon", "stop_firing invoked")
 	
 	# Stop timeout timer
-	if beam_timeout_timer:
+	if beam_timeout_timer and beam_timeout_timer.time_left > 0:
 		beam_timeout_timer.stop()
 		PhaserLogger.log_message("PhaserBeamsWeapon", "Beam timeout stopped")
 	
 	if current_beam:
-		print("PhaserBeams: Stopping current beam")
 		var beam_ref = current_beam
 		# Force stop the beam if it has a stop method
 		if beam_ref.has_method("stop_beam"):
 			beam_ref.stop_beam()
-		if is_instance_valid(beam_ref):
-			beam_ref.queue_free()
+		
+		# Clear reference and state
 		current_beam = null
-	
-	is_firing = false
-	fire_timer = 0.0
-	manual_mode_active = false
-	
-	# Stop effects including audio
-	stop_firing_effects()
-	
-	# Stop all animations
-	if animation_player:
-		animation_player.stop()
+		is_firing = false
 	
 	# Emit signal for WeaponSystem
 	weapon_stopped.emit(self)
-	print("PhaserBeams: Emitted weapon_stopped signal")
 	
 	# Free the weapon instance itself
 	if is_inside_tree():
 		queue_free()
+	
+	# Stop audio
+	if audio_player and audio_player.playing:
+		audio_player.stop()
 
 func stop_firing_effects():
 	"""Stop firing effects"""
@@ -377,28 +353,15 @@ func stop_firing_effects():
 	# Stop audio
 	if audio_player and audio_player.playing:
 		audio_player.stop()
-		print("PhaserBeams: Stopped audio playback")
 
 func _on_beam_ended():
 	"""Handle beam ending naturally"""
-	print("PhaserBeams: Beam ended naturally")
 	PhaserLogger.log_message("PhaserBeamsWeapon", "Beam ended signal received")
 	current_beam = null
 	is_firing = false
-	fire_timer = 0.0
-	manual_mode_active = false
-	stop_firing_effects()
-	weapon_stopped.emit(self)
-	
-	# Free the weapon instance
-	if is_inside_tree():
-		queue_free()
-	if animation_player:
-		animation_player.stop()
 
-func _on_target_hit(target: Node, hit_damage: float):
+func _on_target_hit(_target: Node, _hit_damage: float):
 	"""Handle beam hitting target"""
-	print("PhaserBeams: Hit ", target.name, " for ", hit_damage, " damage")
 
 func _process(delta):
 	"""Update fire timer"""

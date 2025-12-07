@@ -1,0 +1,43 @@
+[gd_scene load_steps=3 format=3 uid="uid://bvxqj8h1m7qny"]
+
+[ext_resource type="Script" path="res://scripts/LoadingScreen.gd" id="1_0x8y7"]
+[sub_resource type="LabelSettings" id="LabelSettings_loading_text"]
+font_size = 19
+letter_spacing = 2
+
+[node name="LoadingScreen" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource("1_0x8y7")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.1, 0.1, 0.1, 1)
+
+[node name="LoadingContainer" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -25.0
+offset_top = -35.0
+offset_right = 25.0
+offset_bottom = 35.0
+alignment = 1
+
+[node name="Spinner" type="Control" parent="LoadingContainer"]
+layout_mode = 2
+custom_minimum_size = Vector2(50, 50)
+
+[node name="LoadingText" type="Label" parent="LoadingContainer"]
+layout_mode = 2
+text = "LOADING"
+label_settings = SubResource("LabelSettings_loading_text")
+modulate = Color(1, 1, 1, 1)

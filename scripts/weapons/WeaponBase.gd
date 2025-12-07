@@ -6,9 +6,6 @@ class_name WeaponBase
 
 # Signals
 signal weapon_fired(weapon: WeaponBase, target_position: Vector2)
-## Emitted when the weapon stops firing
-## @param weapon: Reference to the weapon that stopped firing
-signal weapon_stopped(weapon: WeaponBase)
 signal weapon_reloaded(weapon: WeaponBase)
 signal weapon_ready(weapon: WeaponBase)
 signal weapon_cooldown_changed(cooldown_remaining: float, cooldown_total: float)

@@ -9,7 +9,7 @@ class_name Mothership
 @export var spawn_interval: float = 5.0
 @export var max_drones: int = 5
 @export var faction: String = "enemy" # "player" or "enemy"
-@export var orbit_radius: float = 300.0
+@export var orbit_radius: float = 1000.0
 @export var orbit_speed: float = 0.5
 
 # Patrol variables
@@ -31,7 +31,7 @@ const NPC_SHIP_SCENES = [
 	# Add more NPC ship scenes here when available
 ]
 
-const DRONE_SCENE = preload("res://scenes/Enemy.tscn")
+const DRONE_SCENE = preload("res://scenes/DroneMimic.tscn")
 const XP_ORB_SCENE = preload("res://scenes/ExperienceOrb.tscn")
 
 func _ready() -> void:
@@ -74,9 +74,18 @@ func _set_faction(new_faction: String) -> void:
 	if faction == "player":
 		add_to_group("player_faction")
 		remove_from_group("enemy")
+		# Use a non-enemy collision layer for player-faction motherships so the
+		# player and player weapons (which target enemy layer 2) can pass through.
+		collision_layer = 4
+		# Optionally still allow interactions with enemies if their masks include
+		# this layer; player (mask=2) will not collide with layer 4.
+		# Keep existing mask unless explicitly needed.
 	elif faction == "enemy":
 		add_to_group("enemy")
 		remove_from_group("player_faction")
+		# Ensure enemy-faction motherships stay on the enemy collision layer so
+		# the player and weapons can interact with them normally.
+		collision_layer = 2
 
 
 func set_faction(new_faction: String) -> void:
@@ -187,6 +196,9 @@ func _attempt_spawn() -> void:
 				ship.set_faction("player")
 			ship.add_to_group("player_faction")
 			ship.remove_from_group("enemy") # Don't target self/allies
+			
+			if ship.has_method("set_target_node"):
+				ship.set_target_node(self)
 			
 			# Set target_group only if the ship supports it (like Enemy.gd)
 			if "target_group" in ship:

@@ -143,6 +143,9 @@ func fire_at_enemy(enemy):
 	get_tree().current_scene.add_child(phaser)
 	time_since_last_fire = 0.0
 
+func set_target_node(node: Node2D) -> void:
+	target_node = node
+
 func _is_large_enemy(enemy: Node) -> bool:
 	# Check if enemy is large (mimic-type)
 	if enemy.has_method("get_health"):

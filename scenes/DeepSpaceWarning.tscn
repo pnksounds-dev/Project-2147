@@ -1,4 +1,4 @@
-[gd_scene load_steps=2 format=3 uid="uid://dswarning9k2m"]
+[gd_scene load_steps=2 format=3]
 
 [ext_resource type="Script" path="res://scripts/DeepSpaceWarning.gd" id="1_DeepSpaceWarning"]
 

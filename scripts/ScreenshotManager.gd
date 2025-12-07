@@ -2,16 +2,23 @@ extends Node
 
 ## ScreenshotManager - Handles screenshot capture, storage, and UI display
 
+signal system_ready
 signal screenshot_taken(filepath: String, image: Image)
 signal screenshot_deleted(filepath: String)
 
-var screenshot_dir: String = "res://PlayerData/Screenshots"
+var screenshot_dir: String
 var screenshot_format: String = "png" # png or jpg
 var notification_manager: Node = null
 var gallery_panel: Control = null
+var initialized: bool = false
 
 func _ready():
 	add_to_group("screenshot_manager")
+	# Don't auto-initialize in _ready - let loading screen handle it
+
+func initialize() -> void:
+	"""Initialize screenshot system for loading screen"""
+	print("ScreenshotManager: Initializing...")
 	
 	# Get notification manager
 	notification_manager = get_node_or_null("/root/NotificationManager")
@@ -20,12 +27,16 @@ func _ready():
 	
 	# Ensure screenshot directory exists
 	_ensure_screenshot_directory()
+	
+	initialized = true
+	system_ready.emit()
+	print("ScreenshotManager: Initialization complete")
 
 func _ensure_screenshot_directory():
 	"""Create screenshot directory if it doesn't exist"""
-	var dir := DirAccess.open("res://PlayerData")
-	if dir and not dir.dir_exists("Screenshots"):
-		dir.make_dir("Screenshots")
+	var project_root_fs := ProjectSettings.globalize_path("res://")
+	screenshot_dir = project_root_fs.path_join("PlayerData").path_join("Screenshots")
+	DirAccess.make_dir_recursive_absolute(screenshot_dir)
 
 func take_screenshot() -> void:
 	"""Take a screenshot and show UI feedback"""
@@ -213,16 +224,34 @@ func get_screenshot_list() -> Array[Dictionary]:
 	screenshots.sort_custom(func(a, b): return a.modified_time > b.modified_time)
 	return screenshots
 
+func get_screenshot_directory() -> String:
+	"""Get the absolute screenshot directory, ensuring it exists."""
+	if screenshot_dir == "" or not DirAccess.dir_exists_absolute(screenshot_dir):
+		_ensure_screenshot_directory()
+	return screenshot_dir
+
 func delete_screenshot(filepath: String) -> bool:
 	"""Delete a screenshot file"""
 	var dir := DirAccess.open(screenshot_dir)
-	if dir and dir.file_exists(filepath.get_file()):
-		var success = dir.remove(filepath.get_file()) == OK
-		if success:
-			screenshot_deleted.emit(filepath)
-			_show_notification("Screenshot deleted!", 2.0)
-		return success
-	return false
+	if not dir or not dir.file_exists(filepath.get_file()):
+		return false
+	
+	var success = dir.remove(filepath.get_file()) == OK
+	if success:
+		# Emit signal and notify for main image removal
+		screenshot_deleted.emit(filepath)
+		_show_notification("Screenshot deleted!", 2.0)
+		
+		# Attempt to remove matching thumbnail in PlayerData/Screenshots/thumbnails
+		var thumb_root := screenshot_dir.path_join("thumbnails")
+		if DirAccess.dir_exists_absolute(thumb_root):
+			var thumb_dir := DirAccess.open(thumb_root)
+			if thumb_dir:
+				var thumb_name := filepath.get_file().get_basename() + "_thumb.jpg"
+				if thumb_dir.file_exists(thumb_name):
+					thumb_dir.remove(thumb_name)
+	
+	return success
 
 func toggle_favorite(_filepath: String) -> bool:
 	"""Toggle favorite status (saves to metadata file)"""
@@ -233,8 +262,7 @@ func toggle_favorite(_filepath: String) -> bool:
 
 func open_screenshot_folder() -> void:
 	"""Open the screenshot directory in the OS file explorer."""
-	var global_path := ProjectSettings.globalize_path(screenshot_dir)
-	OS.shell_open(global_path)
+	OS.shell_open(screenshot_dir)
 
 func set_screenshot_format(format: String) -> void:
 	"""Set desired screenshot file format ("png" or "jpg")."""

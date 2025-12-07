@@ -1,6 +1,7 @@
-[gd_scene load_steps=2 format=3 uid="uid://j6yhlekd54f0"]
+[gd_scene load_steps=3 format=3 uid="uid://j6yhlekd54f0"]
 
 [ext_resource type="Script" path="res://scripts/HUD_Complete.gd" id="1"]
+[ext_resource type="PackedScene" uid="uid://dbklq4njfunr2" path="res://scenes/UI/InteractionPrompt.tscn" id="2_interaction_prompt"]
 
 [node name="HUD_Complete" type="CanvasLayer"]
 script = ExtResource("1")
@@ -12,3 +13,5 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+
+[node name="InteractionPrompt" parent="Control" instance=ExtResource("2_interaction_prompt")]

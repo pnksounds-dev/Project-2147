@@ -14,7 +14,7 @@ var time_since_last_orb = 0.0
 var orb_scene = preload("res://scenes/ExperienceOrb.tscn")
 
 # Preload enemy scenes
-var drone_scene = preload("res://scenes/Enemy.tscn")
+var drone_scene = preload("res://scenes/DroneMimic.tscn")
 var scout_scene = preload("res://scenes/Scout.tscn")
 var hypno_scene = preload("res://scenes/HypnoMimic.tscn")
 var greater_scene = preload("res://scenes/GreaterMimic.tscn")

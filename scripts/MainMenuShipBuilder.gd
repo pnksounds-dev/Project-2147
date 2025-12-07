@@ -20,10 +20,10 @@ var _base_font_sizes := {
 }
 
 const DEFAULT_PREFABS := [
-	{"id": "starter_ship", "name": "Starter Ship", "type": "Starter", "level": 1, "created": 1, "price": 0, "texture": "res://assets/ships/player/ShipStart.png", "stats": "Speed 5  Armor 2  Cargo 1", "description": "Basic starter vessel with essential systems."},
-	{"id": "medium_mk1", "name": "Medium MK I", "type": "Medium", "level": 2, "created": 2, "price": 500, "texture": "res://assets/ships/player/ShipMedium1.png", "stats": "Speed 4  Armor 3  Cargo 2", "description": "Improved mid-tier ship with better performance."},
-	{"id": "medium_mk2", "name": "Medium MK II", "type": "Medium", "level": 3, "created": 3, "price": 1200, "texture": "res://assets/ships/player/ShipMedium2.png", "stats": "Speed 3  Armor 5  Cargo 3", "description": "Balanced gunship with modular hard-points."},
-	{"id": "destroyer_base", "name": "Destroyer Base", "type": "Heavy", "level": 4, "created": 4, "price": 2500, "texture": "res://assets/ships/player/ShipNew.png", "stats": "Speed 2  Armor 8  Cargo 4", "description": "Heavy destroyer chassis for serious combat."}
+	{"id": "starter_ship", "name": "Starter Ship", "type": "Starter", "level": 1, "created": 1, "price": 0, "texture": "res://assets/Ships/FactionShips/SpawnShip.png", "stats": "Speed 5  Armor 2  Cargo 1", "description": "Basic starter vessel with essential systems."},
+	{"id": "medium_mk1", "name": "Medium MK I", "type": "Medium", "level": 2, "created": 2, "price": 500, "texture": "res://assets/Ships/FactionShips/ShipMedium1.png", "stats": "Speed 4  Armor 3  Cargo 2", "description": "Improved mid-tier ship with better performance."},
+	{"id": "medium_mk2", "name": "Medium MK II", "type": "Medium", "level": 3, "created": 3, "price": 1200, "texture": "res://assets/Ships/player/Trader_General_1.png", "stats": "Speed 3  Armor 5  Cargo 3", "description": "Balanced gunship with modular hard-points."},
+	{"id": "destroyer_base", "name": "Destroyer Base", "type": "Heavy", "level": 4, "created": 4, "price": 2500, "texture": "res://assets/Ships/ShipParts/Body/Destroyer_Head.png", "stats": "Speed 2  Armor 8  Cargo 4", "description": "Heavy destroyer chassis for serious combat."}
 ]
 
 var _ship_prefabs: Array = []

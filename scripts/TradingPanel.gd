@@ -223,65 +223,6 @@ func _update_sell_total_price():
 	
 	var item_data = item_database.get_item(current_sell_item)
 	var quantity = int(sell_quantity_spinbox.value)
-	var total = item_data["sell_price"] * quantity
-	
-	sell_total_price.text = "Total: " + str(total) + " coins"
-	sell_button.disabled = false
-
-func _on_buy_pressed():
-	"""Handle buy button press"""
-	if current_buy_item.is_empty() or not player_coins or not item_database:
-		return
-	
-	var item_data = item_database.get_item(current_buy_item)
-	var quantity = int(buy_quantity_spinbox.value)
-	var total_cost = item_data["buy_price"] * quantity
-	
-	if player_coins.spend_coins(total_cost):
-		# TODO: Add item to player inventory
-		item_purchased.emit(current_buy_item, quantity)
-		
-		# Update UI
-		_update_coins_display()
-		_populate_sell_items()  # Refresh sell items
-		
-		if audio_manager:
-			audio_manager.play_ui_sound("button_click")
-		
-		print("TradingPanel: Purchased ", quantity, "x ", item_data["name"])
-	else:
-		print("TradingPanel: Insufficient coins for purchase")
-
-func _on_sell_pressed():
-	"""Handle sell button press"""
-	if current_sell_item.is_empty() or not player_coins or not item_database:
-		return
-	
-	var item_data = item_database.get_item(current_sell_item)
-	var quantity = int(sell_quantity_spinbox.value)
-	var total_value = item_data["sell_price"] * quantity
-	
-	# TODO: Remove item from player inventory
-	player_coins.add_coins(total_value)
-	item_sold.emit(current_sell_item, quantity)
-	
-	# Update UI
-	_update_coins_display()
-	_populate_sell_items()  # Refresh sell items
-	
-	if audio_manager:
-		audio_manager.play_ui_sound("button_click")
-	
-	print("TradingPanel: Sold ", quantity, "x ", item_data["name"])
-
-func _reset_buy_details():
-	"""Reset buy details panel"""
-	current_buy_item = ""
-	buy_item_name.text = "Select an item"
-	buy_item_description.text = ""
-	buy_item_price.text = ""
-	buy_total_price.text = "Total: 0 coins"
-	buy_quantity_spinbox.value = 1
 	buy_button.disabled = true
 
 func _reset_sell_details():

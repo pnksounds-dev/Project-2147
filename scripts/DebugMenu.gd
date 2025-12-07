@@ -8,6 +8,7 @@ signal section_pinned(section_name: String, pinned: bool)
 
 @export var debug_enabled: bool = true
 @export var hotkey_toggle: Key = KEY_F1
+@export var embed_in_layout: bool = false  # When true, main_panel leaves 55px top/bottom for host UI bars
 
 # === NEW PROFESSIONAL UI ELEMENTS ===
 var main_panel: Panel
@@ -28,6 +29,7 @@ var floating_windows: Dictionary = {}  # section_name -> DebugWindow
 # Debug sections registry
 var debug_sections: Dictionary = {}  # section_name -> DebugSection
 var section_order: Array[String] = []
+var active_section_filter: String = ""  # Empty = show all sections
 
 # UI State
 var debug_visible: bool = false  # NEW: Simpler visibility tracking (renamed from is_visible to avoid shadowing)
@@ -56,7 +58,10 @@ func _ready():
 	
 	# Create UI
 	_create_styles()
-	_create_main_ui()
+	if has_node("MainPanel"):
+		_configure_scene_ui()
+	else:
+		_create_main_ui()
 	_register_default_sections()
 	
 	set_process_input(true)
@@ -153,14 +158,17 @@ func _create_styles():
 func _create_main_ui():
 	# === OLD UI CREATION (DISABLED) ===
 	# DISABLED: Replaced with professional fullscreen grid layout
-	# main_panel = Panel.new()
-	# main_panel.custom_minimum_size = Vector2(320, 450)
-	# ... rest of old UI disabled
 	
-	# === NEW PROFESSIONAL FULLSCREEN UI ===
-	# Main fullscreen panel
+	# === NEW PROFESSIONAL UI ===
+	# Main panel, either fullscreen or embedded between top/bottom bars
 	main_panel = Panel.new()
-	main_panel.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	if embed_in_layout:
+		# Leave 55px at top and bottom so host UI bars remain visible
+		main_panel.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+		main_panel.offset_top = 55.0
+		main_panel.offset_bottom = -55.0
+	else:
+		main_panel.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	main_panel.add_theme_stylebox_override("panel", style_main)
 	add_child(main_panel)
 	
@@ -214,15 +222,7 @@ func _create_main_ui():
 	hint.add_theme_color_override("font_color", Color(0.5, 0.5, 0.5))
 	header_content.add_child(hint)
 	
-	# Close button
-	var close_btn = Button.new()
-	close_btn.text = "X"
-	close_btn.custom_minimum_size = Vector2(32, 32)
-	close_btn.add_theme_font_size_override("font_size", 16)
-	close_btn.add_theme_stylebox_override("normal", style_button)
-	close_btn.add_theme_stylebox_override("hover", style_button_hover)
-	close_btn.pressed.connect(toggle_menu)
-	header_content.add_child(close_btn)
+	# Note: Close button removed; closing is handled via ESC/F1 in host UI
 	
 	# === CONTENT AREA ===
 	var content_margin = MarginContainer.new()
@@ -239,12 +239,12 @@ func _create_main_ui():
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	content_margin.add_child(scroll)
 	
-	# Grid for sections (3 columns)
+	# Grid for sections (2 columns, more breathing room)
 	grid_container = GridContainer.new()
-	grid_container.columns = 3
+	grid_container.columns = 2
 	grid_container.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	grid_container.add_theme_constant_override("h_separation", 15)
-	grid_container.add_theme_constant_override("v_separation", 15)
+	grid_container.add_theme_constant_override("v_separation", 20)
 	scroll.add_child(grid_container)
 	
 	# === FOOTER BAR ===
@@ -259,29 +259,87 @@ func _create_main_ui():
 	footer_bar.add_theme_constant_override("separation", 15)
 	footer_panel.add_child(footer_bar)
 	
-	# Quick actions in footer
-	var actions_label = Label.new()
-	actions_label.text = "Quick Actions:"
-	actions_label.add_theme_font_size_override("font_size", 12)
-	actions_label.add_theme_color_override("font_color", Color(0.6, 0.6, 0.6))
-	footer_bar.add_child(actions_label)
+	# Footer contents (section selector + version) are built after sections are registered
 	
-	_add_footer_button("Reload Scene", func(): _reload_scene())
-	_add_footer_button("Clear Console", func(): print("\n".repeat(50)))
-	_add_footer_button("Toggle Godmode", func(): _toggle_godmode())
-	_add_footer_button("Add 1000 Coins", func(): _add_coins(1000))
-	_add_footer_button("Kill All Enemies", func(): _kill_all_enemies())
+	# Start hidden
+	main_panel.visible = false
 	
-	# Version info on right
-	var footer_spacer = Control.new()
-	footer_spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	footer_bar.add_child(footer_spacer)
+	# Update timer for FPS/memory
+	var timer = Timer.new()
+	timer.wait_time = 0.5
+	timer.autostart = true
+	timer.timeout.connect(_update_stats)
+	add_child(timer)
+
+func _configure_scene_ui():
+	# Use nodes defined in DebugMenu.tscn instead of building UI from scratch
+	main_panel = get_node_or_null("MainPanel")
+	if not main_panel:
+		_create_main_ui()
+		return
 	
-	var version = Label.new()
-	version.text = "Debug v1.0 | Godot " + Engine.get_version_info().string
-	version.add_theme_font_size_override("font_size", 11)
-	version.add_theme_color_override("font_color", Color(0.4, 0.4, 0.4))
-	footer_bar.add_child(version)
+	if embed_in_layout:
+		main_panel.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+		main_panel.offset_top = 55.0
+		main_panel.offset_bottom = -55.0
+	
+	main_panel.add_theme_stylebox_override("panel", style_main)
+	
+	var main_vbox: VBoxContainer = main_panel.get_node_or_null("VBoxContainer")
+	if not main_vbox:
+		_create_main_ui()
+		return
+	
+	# Header bar
+	var header_panel: PanelContainer = main_vbox.get_node_or_null("PanelContainer")
+	if header_panel:
+		header_bar = header_panel
+		header_bar.add_theme_stylebox_override("panel", style_header)
+		
+		var header_content: HBoxContainer = header_bar.get_node_or_null("HBoxContainer")
+		if header_content:
+			var close_btn: Button = header_content.get_node_or_null("CloseButton")
+			if close_btn:
+				close_btn.visible = false
+	
+	# Content area and grid
+	var content_margin: MarginContainer = main_vbox.get_node_or_null("MarginContainer")
+	if content_margin:
+		content_margin.size_flags_vertical = Control.SIZE_EXPAND_FILL
+		content_margin.add_theme_constant_override("margin_left", 20)
+		content_margin.add_theme_constant_override("margin_right", 20)
+		content_margin.add_theme_constant_override("margin_top", 15)
+		content_margin.add_theme_constant_override("margin_bottom", 15)
+		
+		var scroll: ScrollContainer = content_margin.get_node_or_null("ScrollContainer")
+		if scroll:
+			scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+			scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+			scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+			
+			var grid: GridContainer = scroll.get_node_or_null("GridContainer")
+			if grid:
+				grid_container = grid
+				grid_container.columns = 3
+				grid_container.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+				grid_container.add_theme_constant_override("h_separation", 15)
+				grid_container.add_theme_constant_override("v_separation", 15)
+	
+	# Footer bar and quick actions
+	var footer_panel: PanelContainer = main_vbox.get_node_or_null("PanelContainer2")
+	if footer_panel:
+		var footer_style = style_header.duplicate()
+		footer_style.border_width_bottom = 0
+		footer_style.border_width_top = 1
+		footer_panel.add_theme_stylebox_override("panel", footer_style)
+		
+		var bar: HBoxContainer = footer_panel.get_node_or_null("HBoxContainer2")
+		if bar:
+			footer_bar = bar
+			footer_bar.add_theme_constant_override("separation", 15)
+			# Clear any pre-defined children; footer contents will be rebuilt as a section selector
+			for child in footer_bar.get_children():
+				child.queue_free()
 	
 	# Start hidden
 	main_panel.visible = false
@@ -308,12 +366,39 @@ func _create_main_ui():
 func _add_footer_button(text: String, callback: Callable):
 	var btn = Button.new()
 	btn.text = text
-	btn.custom_minimum_size = Vector2(0, 28)
-	btn.add_theme_font_size_override("font_size", 11)
+	btn.custom_minimum_size = Vector2(100, 40)
+	btn.add_theme_font_size_override("font_size", 18)
+	btn.add_theme_color_override("font_color", Color(0.9, 0.9, 0.9, 1.0))
+	btn.add_theme_color_override("font_hover_color", Color(0.2, 0.8, 1, 1))
 	btn.add_theme_stylebox_override("normal", style_button)
 	btn.add_theme_stylebox_override("hover", style_button_hover)
 	btn.pressed.connect(callback)
 	footer_bar.add_child(btn)
+
+func _build_footer_section_nav():
+	if not footer_bar:
+		return
+	
+	# Clear any existing children
+	for child in footer_bar.get_children():
+		child.queue_free()
+	
+	# Match main menu-style centered tab layout with just Items and Inventory
+	footer_bar.alignment = BoxContainer.ALIGNMENT_CENTER
+	var nav_order: Array[String] = ["Items", "Inventory"]
+	for section_name in nav_order:
+		if debug_sections.has(section_name):
+			var name_copy := section_name
+			_add_footer_button(name_copy, func():
+				_select_section_filter(name_copy)
+			)
+
+func _select_section_filter(section_name: String) -> void:
+	if active_section_filter == section_name:
+		active_section_filter = ""  # Clicking again clears filter (show all)
+	else:
+		active_section_filter = section_name
+	refresh_sections()
 
 func _update_stats():
 	if not debug_visible:
@@ -326,24 +411,36 @@ func _update_stats():
 		mem_label.text = "MEM: %.1f MB" % (OS.get_static_memory_usage() / 1024.0 / 1024.0)
 
 func _register_default_sections():
-	"""Register default debug sections"""
-	register_section("Weapons", preload("res://scripts/debug/DebugWeaponsSection.gd").new())
-	register_section("Performance", preload("res://scripts/debug/DebugPerformanceSection.gd").new())
-	register_section("Inventory", preload("res://scripts/debug/DebugInventorySection.gd").new())
-	register_section("Player", preload("res://scripts/debug/DebugPlayerSection.gd").new())
-	register_section("Audio", preload("res://scripts/debug/DebugAudioSection.gd").new())
-	register_section("Systems", preload("res://scripts/debug/DebugSystemsSection.gd").new())
+	"""Register default debug sections (layout-only placeholders)."""
+	var section_names: Array[String] = [
+		"Items",
+		"Weapons",
+		"Performance",
+		"Inventory",
+		"Player",
+		"Audio",
+		"Systems",
+	]
+	for section_name in section_names:
+		register_section(section_name, null)
 	
 	refresh_sections()
+	_build_footer_section_nav()
 
-func register_section(section_name: String, section: Node):
-	"""Register a debug section"""
+func register_section(section_name: String, section: Node = null):
+	"""Register a debug section.
+
+	In layout-only mode sections may be null; the grid will still create
+	placeholder panels for each registered name.
+	"""
 	if debug_sections.has(section_name):
 		print("DebugMenu: Section '", section_name, "' already exists, replacing")
 	
 	debug_sections[section_name] = section
-	section.name = section_name
-	section.debug_menu = self
+	
+	if section:
+		section.name = section_name
+		section.debug_menu = self
 	
 	if not section_order.has(section_name):
 		section_order.append(section_name)
@@ -369,8 +466,10 @@ func refresh_sections():
 	for child in grid_container.get_children():
 		child.queue_free()
 	
-	# Add sections to grid
+	# Add sections to grid (respect active filter if set)
 	for section_name in section_order:
+		if active_section_filter != "" and section_name != active_section_filter:
+			continue
 		if debug_sections.has(section_name):
 			var section = debug_sections[section_name]
 			var section_panel = _create_section_panel(section_name, section)
@@ -384,7 +483,7 @@ func refresh_sections():
 # 	panel.add_theme_stylebox_override("panel", section_style)
 # 	... rest disabled
 
-func _create_section_panel(section_name: String, section: Node) -> Control:
+func _create_section_panel(section_name: String, _section: Node) -> Control:
 	var panel = PanelContainer.new()
 	panel.add_theme_stylebox_override("panel", style_section)
 	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -415,25 +514,23 @@ func _create_section_panel(section_name: String, section: Node) -> Control:
 	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	header_hbox.add_child(title)
 	
-	# Pin button
-	var pin_btn = Button.new()
-	pin_btn.text = "PIN"
-	pin_btn.custom_minimum_size = Vector2(40, 24)
-	pin_btn.add_theme_font_size_override("font_size", 10)
-	pin_btn.add_theme_stylebox_override("normal", style_button)
-	pin_btn.add_theme_stylebox_override("hover", style_button_hover)
-	pin_btn.pressed.connect(func(): toggle_section_pin(section_name))
-	header_hbox.add_child(pin_btn)
-	
 	# Section content
 	var content_scroll = ScrollContainer.new()
 	content_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	content_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	vbox.add_child(content_scroll)
 	
-	var content = section.get_debug_content()
-	if content:
-		content_scroll.add_child(content)
+	# Layout-only placeholder content for now; real debug widgets will be
+	# wired in later as we rebuild functionality.
+	var placeholder = Label.new()
+	placeholder.text = "%s debug panel (layout only)" % section_name
+	placeholder.add_theme_font_size_override("font_size", 12)
+	placeholder.add_theme_color_override("font_color", Color(0.7, 0.7, 0.8))
+	placeholder.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	placeholder.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	placeholder.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	placeholder.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	content_scroll.add_child(placeholder)
 	
 	return panel
 
@@ -516,13 +613,16 @@ func _toggle_godmode():
 				print("Godmode toggled")
 
 func _add_coins(amount: int):
-	if Engine.get_main_loop():
-		var tree = Engine.get_main_loop() as SceneTree
-		if tree:
-			var game_state = tree.root.get_node_or_null("/root/GameState")
-			if game_state and game_state.has_method("add_coins"):
-				game_state.add_coins(amount)
-				print("Added %d coins" % amount)
+	var economy_system = get_node_or_null("/root/EconomySystem")
+	if economy_system and economy_system.has_method("add_coins"):
+		economy_system.add_coins(amount)
+		print("DebugMenu: Added %d coins via EconomySystem autoload" % amount)
+
+func _set_coins(amount: int):
+	var economy_system = get_node_or_null("/root/EconomySystem")
+	if economy_system and economy_system.has_method("set_coins"):
+		economy_system.set_coins(amount)
+		print("DebugMenu: Set coins to %d via EconomySystem autoload" % amount)
 
 func _kill_all_enemies():
 	if Engine.get_main_loop():

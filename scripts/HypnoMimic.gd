@@ -1,4 +1,4 @@
-extends "res://scripts/Enemy.gd"
+extends "res://scripts/DroneMimic.gd"
 
 var time_offset = 0.0
 

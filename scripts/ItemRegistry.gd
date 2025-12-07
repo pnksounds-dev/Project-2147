@@ -9,11 +9,14 @@ const HealthIncreaseItemClass = preload("res://scripts/items/HealthIncreaseItem.
 const BrokenHeartItemClass = preload("res://scripts/items/BrokenHeartItem.gd")
 const OrbMasterItemClass = preload("res://scripts/items/OrbMasterItem.gd")
 const LoveShieldItemClass = preload("res://scripts/items/LoveShieldItem.gd")
+const ShieldItemClass = preload("res://scripts/items/ShieldItem.gd")
+const SurgicallyEnhancedItemClass = preload("res://scripts/items/SurgicallyEnhancedItem.gd")
 
 # Weapon data classes (for registry)
 const PhaserBeamsDataClass = preload("res://scripts/weapons/PhaserBeamsData.gd")
 const VoidMagicWeaponClass = preload("res://scripts/weapons/VoidMagicWeapon.gd")
 const BallisticBarrageWeaponClass = preload("res://scripts/weapons/BallisticBarrageWeapon.gd")
+const PhotonTorpedoWeaponClass = preload("res://scripts/weapons/PhotonTorpedoWeapon.gd")
 
 # Registry storage
 var items: Dictionary = {}
@@ -28,11 +31,14 @@ func _initialize_registry():
 	_register_item("BrokenHeart", BrokenHeartItemClass.new())
 	_register_item("OrbMaster", OrbMasterItemClass.new())
 	_register_item("LoveShield", LoveShieldItemClass.new())
+	_register_item("Shield", ShieldItemClass.new())
+	_register_item("SurgicallyEnhanced", SurgicallyEnhancedItemClass.new())
 	
 	# Initialize weapons - use WeaponData classes, not BaseWeapon classes
 	_register_weapon("FX_PhaserBeams", PhaserBeamsDataClass.new())
 	_register_weapon("VoidMagic", VoidMagicWeaponClass.new())
 	_register_weapon("BallisticBarrage", BallisticBarrageWeaponClass.new())
+	_register_weapon("PhotonTorpedo", PhotonTorpedoWeaponClass.new())
 	
 	print("ItemRegistry: Initialized ", items.size(), " items and ", weapons.size(), " weapons")
 

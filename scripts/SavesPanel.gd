@@ -13,24 +13,12 @@ var _expanded_entry: Control = null
 var _selected_entry: Control = null
 var _selected_save_id: String = ""
 
-var _load_button: Button
-var _delete_button: Button
-var _refresh_button: Button
 
 func _ready() -> void:
 	_save_manager = get_node_or_null("/root/SaveManager")
 	_save_list_vbox = get_node_or_null("SavesVBox/SaveScroll/SaveListVBox")
 	_info_label = get_node_or_null("SavesVBox/InfoLabel")
-	_load_button = get_node_or_null("SavesVBox/ButtonsRow/LoadSelected")
-	_delete_button = get_node_or_null("SavesVBox/ButtonsRow/DeleteSelected")
-	_refresh_button = get_node_or_null("SavesVBox/ButtonsRow/Refresh")
 
-	if _load_button and not _load_button.pressed.is_connected(_on_load_selected_pressed):
-		_load_button.pressed.connect(_on_load_selected_pressed)
-	if _delete_button and not _delete_button.pressed.is_connected(_on_delete_selected_pressed):
-		_delete_button.pressed.connect(_on_delete_selected_pressed)
-	if _refresh_button and not _refresh_button.pressed.is_connected(_on_refresh_pressed):
-		_refresh_button.pressed.connect(_on_refresh_pressed)
 
 	_refresh_saves()
 
@@ -55,9 +43,8 @@ func _refresh_saves() -> void:
 		if saves.is_empty():
 			_info_label.text = "No saves found. Create a new save from the current game state."
 		else:
-			_info_label.text = "Select a save to view details, load, delete, or mark as favorite."
-	_update_button_states()
-
+			_info_label.text = ""
+	
 
 func _create_save_entry(save_data: Dictionary) -> Control:
 	var entry := PanelContainer.new()
@@ -80,6 +67,29 @@ func _create_save_entry(save_data: Dictionary) -> Control:
 	header.add_theme_constant_override("separation", 8)
 	content.add_child(header)
 
+	# Ship texture before title
+	var ship_icon: Control
+	var tex_path: String = save_data.get("ship_texture", "")
+	if tex_path != "" and ResourceLoader.exists(tex_path):
+		ship_icon = TextureRect.new()
+		ship_icon.custom_minimum_size = Vector2(40, 40)
+		ship_icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		ship_icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		(ship_icon as TextureRect).texture = load(tex_path)
+		(ship_icon as TextureRect).modulate = Color.WHITE
+	else:
+		# Create a placeholder panel with background color if no texture
+		ship_icon = Panel.new()
+		ship_icon.custom_minimum_size = Vector2(40, 40)
+		var style := StyleBoxFlat.new()
+		style.bg_color = Color(0.3, 0.3, 0.4)
+		style.corner_radius_top_left = 4
+		style.corner_radius_top_right = 4
+		style.corner_radius_bottom_left = 4
+		style.corner_radius_bottom_right = 4
+		ship_icon.add_theme_stylebox_override("panel", style)
+	header.add_child(ship_icon)
+
 	var title := Label.new()
 	title.name = "TitleLabel"
 	title.text = save_data.get("name", "Unnamed Save")
@@ -92,16 +102,9 @@ func _create_save_entry(save_data: Dictionary) -> Control:
 			save_data.get("playtime", "0h 00m"),
 			str(save_data.get("score", 0))
 		]
-	summary.add_theme_font_size_override("font_size", 12)
+	summary.add_theme_font_size_override("font_size", 16)
 	summary.modulate = Color(0.8, 0.8, 0.8)
 	header.add_child(summary)
-	
-	var favorite_btn := Button.new()
-	var is_favorite: bool = save_data.get("favorite", false)
-	favorite_btn.text = "Unfavorite" if is_favorite else "Favorite"
-	favorite_btn.custom_minimum_size = Vector2(90, 28)
-	favorite_btn.pressed.connect(_on_favorite_toggled.bind(entry, favorite_btn))
-	header.add_child(favorite_btn)
 	
 	var expand_btn := Button.new()
 	expand_btn.text = "Details"
@@ -115,16 +118,7 @@ func _create_save_entry(save_data: Dictionary) -> Control:
 	details.add_theme_constant_override("separation", 16)
 	details.set_meta("is_details", true)
 	content.add_child(details)
-	
-	var ship_preview := TextureRect.new()
-	ship_preview.custom_minimum_size = Vector2(180, 100)
-	ship_preview.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	ship_preview.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	var tex: Texture2D = save_data.get("ship_texture", null)
-	if tex:
-		ship_preview.texture = tex
-	details.add_child(ship_preview)
-	
+
 	var info_box := VBoxContainer.new()
 	info_box.add_theme_constant_override("separation", 4)
 	details.add_child(info_box)
@@ -174,6 +168,19 @@ func _on_favorite_toggled(entry: Control, button: Button) -> void:
 		new_state = _save_manager.toggle_favorite(save_id)
 	button.text = "Unfavorite" if new_state else "Favorite"
 
+func _on_favorite_toggled_bar() -> void:
+	"""Handle favorite toggle from bottom bar button"""
+	if _selected_save_id.is_empty():
+		_set_info_text("Select a save before toggling favorite.")
+		return
+	if not _save_manager or not _save_manager.has_method("toggle_favorite"):
+		_set_info_text("Save system unavailable.")
+		return
+	
+	var new_state: bool = _save_manager.toggle_favorite(_selected_save_id)
+	_set_info_text("Save marked as favorite." if new_state else "Save removed from favorites.")
+	_refresh_saves()
+
 func refresh_panel() -> void:
 	_refresh_saves()
 
@@ -189,25 +196,25 @@ func _select_entry(entry: Control) -> void:
 	_selected_entry = entry
 	_apply_entry_style(_selected_entry, true)
 	_selected_save_id = str(entry.get_meta("save_id", ""))
-	_update_button_states()
 	if _info_label and not _selected_save_id.is_empty():
 		var title_label: Label = entry.get_meta("title_label", null)
 		var title_text := title_label.text if title_label else _selected_save_id
 		_info_label.text = "Selected save: %s" % title_text
+	# Notify MainMenu to update button states
+	var main_menu = get_node_or_null("/root/MainMenu")
+	if main_menu and main_menu.has_method("_update_saves_bar_states"):
+		main_menu._update_saves_bar_states()
 
 func _clear_selection() -> void:
 	if _selected_entry and is_instance_valid(_selected_entry):
 		_apply_entry_style(_selected_entry, false)
 	_selected_entry = null
 	_selected_save_id = ""
-	_update_button_states()
+	# Notify MainMenu to update button states
+	var main_menu = get_node_or_null("/root/MainMenu")
+	if main_menu and main_menu.has_method("_update_saves_bar_states"):
+		main_menu._update_saves_bar_states()
 
-func _update_button_states() -> void:
-	var has_selection := not _selected_save_id.is_empty()
-	if _load_button:
-		_load_button.disabled = not has_selection
-	if _delete_button:
-		_delete_button.disabled = not has_selection
 
 func _on_load_selected_pressed() -> void:
 	if _selected_save_id.is_empty():
@@ -220,8 +227,27 @@ func _on_load_selected_pressed() -> void:
 	if data.is_empty():
 		_set_info_text("Failed to load save data.")
 		return
+	
+	# === UNIFIED INVENTORY REFACTOR: Track current save ===
+	var game_state = get_node_or_null("/root/GameState")
+	if game_state and game_state.has_method("set_current_save_id"):
+		game_state.set_current_save_id(_selected_save_id)
+	
+	# Apply ship data from save to GameState
+	if game_state and game_state.has_method("apply_ship_data"):
+		game_state.apply_ship_data(data)
+	
+	# Load inventory data if available
+	var inventory_state = get_node_or_null("/root/InventoryState")
+	if inventory_state and data.has("inventory"):
+		inventory_state.from_save_dict(data)  # Pass full save data, not just inventory section
+	
 	var save_name := str(data.get("name", _selected_save_id))
-	_set_info_text("Loaded save '%s'. (Gameplay loading WIP)" % save_name)
+	_set_info_text("Loaded save '%s'. Starting game..." % save_name)
+	
+	# Start the game by transitioning to Main scene
+	await get_tree().create_timer(1.0).timeout
+	get_tree().change_scene_to_file("res://scenes/Main.tscn")
 
 func _on_delete_selected_pressed() -> void:
 	if _selected_save_id.is_empty():
@@ -239,6 +265,9 @@ func _on_delete_selected_pressed() -> void:
 
 func _on_refresh_pressed() -> void:
 	_refresh_saves()
+
+func get_selected_save_id() -> String:
+	return _selected_save_id
 
 func _set_info_text(text: String) -> void:
 	if _info_label:

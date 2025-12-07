@@ -4,11 +4,11 @@
 [ext_resource type="PackedScene" uid="uid://main" path="res://scenes/Main.tscn" id="3"]
 [ext_resource type="PackedScene" uid="uid://1bjiw1hoyrh2" path="res://scenes/BackgroundRenderer.tscn" id="4_bg_renderer"]
 [ext_resource type="PackedScene" uid="uid://cw7c5frsgg5dj" path="res://scenes/SettingsPanel.tscn" id="5_settings"]
-[ext_resource type="Script" uid="uid://da8o842iqo64e" path="res://scripts/ChangelogPanel.gd" id="6_changelog"]
 [ext_resource type="Script" uid="uid://dqmrcvud8o7oq" path="res://scripts/ShopPanel.gd" id="7_shop"]
 [ext_resource type="Script" uid="uid://c3xt1uad2tbd8" path="res://scripts/ScreenshotGallery.gd" id="8_gallery"]
 [ext_resource type="PackedScene" uid="uid://cm1oilpw288et" path="res://scenes/ShipBuilderPanel.tscn" id="9_shipbuilder"]
 [ext_resource type="PackedScene" uid="uid://savespanel" path="res://scenes/SavesPanel.tscn" id="10_saves"]
+[ext_resource type="PackedScene" uid="uid://bnja8fd7valtc" path="res://scenes/DebugMenu.tscn" id="11_debug_menu"]
 
 [sub_resource type="Gradient" id="Gradient_bg"]
 colors = PackedColorArray(0, 0, 0, 0.25, 0, 0, 0, 0.45)
@@ -70,6 +70,7 @@ gameplay_scene = ExtResource("3")
 [node name="BackgroundRenderer" parent="." instance=ExtResource("4_bg_renderer")]
 
 [node name="Overlay" type="TextureRect" parent="."]
+visible = false
 z_index = -80
 layout_mode = 0
 anchor_right = 1.0
@@ -80,11 +81,14 @@ stretch_mode = 7
 
 [node name="Stage" type="Panel" parent="."]
 z_index = -60
-layout_mode = 0
+layout_mode = 1
+anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 offset_top = 55.0
 offset_bottom = -55.0
+grow_horizontal = 2
+grow_vertical = 2
 mouse_filter = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_mainmenu_glass")
 
@@ -138,10 +142,11 @@ layout_mode = 2
 theme_override_constants/separation = 8
 alignment = 1
 
-[node name="StartButton" type="Button" parent="CanvasLayer/TopBarContainer/TopBarCenter/TopButtons"]
+[node name="HomeButton" type="Button" parent="CanvasLayer/TopBarContainer/TopBarCenter/TopButtons"]
 custom_minimum_size = Vector2(100, 40)
 layout_mode = 2
 size_flags_horizontal = 3
+tooltip_text = "Home (1)"
 focus_mode = 0
 theme_override_colors/font_color = Color(0.9, 0.9, 0.9, 1)
 theme_override_colors/font_focus_color = Color(0.2, 0.8, 1, 1)
@@ -159,6 +164,7 @@ flat = true
 custom_minimum_size = Vector2(100, 40)
 layout_mode = 2
 size_flags_horizontal = 3
+tooltip_text = "Saves (2)"
 focus_mode = 0
 theme_override_colors/font_color = Color(0.9, 0.9, 0.9, 1)
 theme_override_colors/font_focus_color = Color(0.2, 0.8, 1, 1)
@@ -176,6 +182,7 @@ flat = true
 custom_minimum_size = Vector2(100, 40)
 layout_mode = 2
 size_flags_horizontal = 3
+tooltip_text = "Ships (3)"
 focus_mode = 0
 theme_override_colors/font_color = Color(0.9, 0.9, 0.9, 1)
 theme_override_colors/font_focus_color = Color(0.2, 0.8, 1, 1)
@@ -193,6 +200,7 @@ flat = true
 custom_minimum_size = Vector2(100, 40)
 layout_mode = 2
 size_flags_horizontal = 3
+tooltip_text = "Gallery (4)"
 focus_mode = 0
 theme_override_colors/font_color = Color(0.9, 0.9, 0.9, 1)
 theme_override_colors/font_focus_color = Color(0.2, 0.8, 1, 1)
@@ -206,10 +214,29 @@ theme_override_styles/focus = SubResource("StyleBoxFlat_btn_focus")
 text = "Gallery"
 flat = true
 
+[node name="InventoryButton" type="Button" parent="CanvasLayer/TopBarContainer/TopBarCenter/TopButtons"]
+custom_minimum_size = Vector2(100, 40)
+layout_mode = 2
+size_flags_horizontal = 3
+tooltip_text = "Inventory (6)"
+focus_mode = 0
+theme_override_colors/font_color = Color(0.9, 0.9, 0.9, 1)
+theme_override_colors/font_focus_color = Color(0.2, 0.8, 1, 1)
+theme_override_colors/font_pressed_color = Color(0.2, 0.8, 1, 1)
+theme_override_colors/font_hover_color = Color(0.2, 0.8, 1, 1)
+theme_override_font_sizes/font_size = 18
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_normal")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_btn_pressed")
+theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
+theme_override_styles/focus = SubResource("StyleBoxFlat_btn_focus")
+text = "Inventory"
+flat = true
+
 [node name="SettingsButton" type="Button" parent="CanvasLayer/TopBarContainer/TopBarCenter/TopButtons"]
 custom_minimum_size = Vector2(100, 40)
 layout_mode = 2
 size_flags_horizontal = 3
+tooltip_text = "Settings (5)"
 focus_mode = 0
 theme_override_colors/font_color = Color(0.9, 0.9, 0.9, 1)
 theme_override_colors/font_focus_color = Color(0.2, 0.8, 1, 1)
@@ -221,23 +248,6 @@ theme_override_styles/pressed = SubResource("StyleBoxFlat_btn_pressed")
 theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
 theme_override_styles/focus = SubResource("StyleBoxFlat_btn_focus")
 text = "Settings"
-flat = true
-
-[node name="ChangelogButton" type="Button" parent="CanvasLayer/TopBarContainer/TopBarCenter/TopButtons"]
-custom_minimum_size = Vector2(100, 40)
-layout_mode = 2
-size_flags_horizontal = 3
-focus_mode = 0
-theme_override_colors/font_color = Color(0.9, 0.9, 0.9, 1)
-theme_override_colors/font_focus_color = Color(0.2, 0.8, 1, 1)
-theme_override_colors/font_pressed_color = Color(0.2, 0.8, 1, 1)
-theme_override_colors/font_hover_color = Color(0.2, 0.8, 1, 1)
-theme_override_font_sizes/font_size = 18
-theme_override_styles/normal = SubResource("StyleBoxFlat_btn_normal")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_btn_pressed")
-theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
-theme_override_styles/focus = SubResource("StyleBoxFlat_btn_focus")
-text = "Updates"
 flat = true
 
 [node name="QuitButton" type="Button" parent="CanvasLayer/TopBarContainer/TopBarCenter/TopButtons"]
@@ -288,14 +298,6 @@ theme_override_font_sizes/font_size = 14
 text = "Version:"
 vertical_alignment = 1
 
-[node name="TabUnderline" type="ColorRect" parent="CanvasLayer"]
-visible = false
-offset_top = 36.0
-offset_right = 100.0
-offset_bottom = 39.0
-mouse_filter = 2
-color = Color(0.2, 0.8, 1, 1)
-
 [node name="BottomBarContainer" type="HBoxContainer" parent="CanvasLayer"]
 anchors_preset = 12
 anchor_top = 1.0
@@ -305,14 +307,16 @@ offset_top = -55.0
 grow_horizontal = 2
 grow_vertical = 0
 theme_override_constants/separation = 0
+alignment = 1
 
-[node name="BottomBarLeft" type="HBoxContainer" parent="CanvasLayer/BottomBarContainer"]
+[node name="HomeBar" type="HBoxContainer" parent="CanvasLayer/BottomBarContainer"]
 custom_minimum_size = Vector2(300, 0)
 layout_mode = 2
+size_flags_vertical = 3
 theme_override_constants/separation = 12
 alignment = 1
 
-[node name="NewGameButton" type="Button" parent="CanvasLayer/BottomBarContainer/BottomBarLeft"]
+[node name="NewGameButton" type="Button" parent="CanvasLayer/BottomBarContainer/HomeBar"]
 custom_minimum_size = Vector2(90, 35)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.9, 0.9, 0.9, 1)
@@ -324,7 +328,7 @@ theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
 text = "New Game"
 flat = true
 
-[node name="ContinueButton" type="Button" parent="CanvasLayer/BottomBarContainer/BottomBarLeft"]
+[node name="ContinueButton" type="Button" parent="CanvasLayer/BottomBarContainer/HomeBar"]
 custom_minimum_size = Vector2(90, 35)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.9, 0.9, 0.9, 1)
@@ -336,15 +340,275 @@ theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
 text = "Continue"
 flat = true
 
-[node name="BottomBarCenter" type="CenterContainer" parent="CanvasLayer/BottomBarContainer"]
+[node name="ChangelogButton" type="Button" parent="CanvasLayer/BottomBarContainer/HomeBar"]
+custom_minimum_size = Vector2(90, 35)
 layout_mode = 2
-size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.9, 0.9, 0.9, 1)
+theme_override_colors/font_hover_color = Color(0.2, 0.8, 1, 1)
+theme_override_font_sizes/font_size = 14
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_normal")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_btn_pressed")
+theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
+text = "ChangeLog"
+flat = true
+
+[node name="GalleryBar" type="HBoxContainer" parent="CanvasLayer/BottomBarContainer"]
+visible = false
+custom_minimum_size = Vector2(300, 0)
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 12
+alignment = 1
+
+[node name="PrevPageButton" type="Button" parent="CanvasLayer/BottomBarContainer/GalleryBar"]
+custom_minimum_size = Vector2(90, 35)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.9, 0.9, 1)
+theme_override_colors/font_hover_color = Color(0.2, 0.8, 1, 1)
+theme_override_font_sizes/font_size = 14
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_normal")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_btn_pressed")
+theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
+text = "← Previous"
+flat = true
+
+[node name="PageLabel" type="Label" parent="CanvasLayer/BottomBarContainer/GalleryBar"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.9, 0.9, 1)
+theme_override_font_sizes/font_size = 14
+text = "Page 1/1"
+vertical_alignment = 1
+
+[node name="NextPageButton" type="Button" parent="CanvasLayer/BottomBarContainer/GalleryBar"]
+custom_minimum_size = Vector2(90, 35)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.9, 0.9, 1)
+theme_override_colors/font_hover_color = Color(0.2, 0.8, 1, 1)
+theme_override_font_sizes/font_size = 14
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_normal")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_btn_pressed")
+theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
+text = "Next →"
+flat = true
+
+[node name="GalleryFavoriteButton" type="Button" parent="CanvasLayer/BottomBarContainer/GalleryBar"]
+custom_minimum_size = Vector2(90, 35)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.9, 0.9, 1)
+theme_override_colors/font_hover_color = Color(0.2, 0.8, 1, 1)
+theme_override_font_sizes/font_size = 14
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_normal")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_btn_pressed")
+theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
+text = "★ Favorite"
+flat = true
+
+[node name="GalleryDeleteButton" type="Button" parent="CanvasLayer/BottomBarContainer/GalleryBar"]
+custom_minimum_size = Vector2(90, 35)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.9, 0.9, 1)
+theme_override_colors/font_hover_color = Color(1, 0.4, 0.4, 1)
+theme_override_font_sizes/font_size = 14
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_normal")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_btn_pressed")
+theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
+text = "🗑️ Delete"
+flat = true
+
+[node name="SettingsBar" type="HBoxContainer" parent="CanvasLayer/BottomBarContainer"]
+visible = false
+custom_minimum_size = Vector2(300, 0)
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 12
+alignment = 1
+
+[node name="SettingsApplyButton" type="Button" parent="CanvasLayer/BottomBarContainer/SettingsBar"]
+custom_minimum_size = Vector2(90, 35)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.9, 0.9, 1)
+theme_override_colors/font_hover_color = Color(0.2, 0.8, 1, 1)
+theme_override_font_sizes/font_size = 14
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_normal")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_btn_pressed")
+theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
+text = "Apply"
+flat = true
+
+[node name="SettingsResetButton" type="Button" parent="CanvasLayer/BottomBarContainer/SettingsBar"]
+custom_minimum_size = Vector2(90, 35)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.9, 0.9, 1)
+theme_override_colors/font_hover_color = Color(0.2, 0.8, 1, 1)
+theme_override_font_sizes/font_size = 14
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_normal")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_btn_pressed")
+theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
+text = "Reset"
+flat = true
+
+[node name="ShipsBar" type="HBoxContainer" parent="CanvasLayer/BottomBarContainer"]
+visible = false
+custom_minimum_size = Vector2(300, 0)
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 12
+alignment = 1
+
+[node name="ShipsBuildButton" type="Button" parent="CanvasLayer/BottomBarContainer/ShipsBar"]
+custom_minimum_size = Vector2(90, 35)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.9, 0.9, 1)
+theme_override_colors/font_hover_color = Color(0.2, 0.8, 1, 1)
+theme_override_font_sizes/font_size = 14
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_normal")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_btn_pressed")
+theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
+text = "Build"
+flat = true
+
+[node name="ShipsLoadButton" type="Button" parent="CanvasLayer/BottomBarContainer/ShipsBar"]
+custom_minimum_size = Vector2(90, 35)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.9, 0.9, 1)
+theme_override_colors/font_hover_color = Color(0.2, 0.8, 1, 1)
+theme_override_font_sizes/font_size = 14
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_normal")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_btn_pressed")
+theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
+text = "Load"
+flat = true
+
+[node name="ShipsDeleteButton" type="Button" parent="CanvasLayer/BottomBarContainer/ShipsBar"]
+custom_minimum_size = Vector2(90, 35)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.9, 0.9, 1)
+theme_override_colors/font_hover_color = Color(1, 0.4, 0.4, 1)
+theme_override_font_sizes/font_size = 14
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_normal")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_btn_pressed")
+theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
+text = "Delete"
+flat = true
+
+[node name="SavesBar" type="HBoxContainer" parent="CanvasLayer/BottomBarContainer"]
+visible = false
+custom_minimum_size = Vector2(300, 0)
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 12
+alignment = 1
+
+[node name="SavesLoadButton" type="Button" parent="CanvasLayer/BottomBarContainer/SavesBar"]
+custom_minimum_size = Vector2(90, 35)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.9, 0.9, 1)
+theme_override_colors/font_hover_color = Color(0.2, 0.8, 1, 1)
+theme_override_font_sizes/font_size = 14
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_normal")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_btn_pressed")
+theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
+text = "Load"
+flat = true
+
+[node name="SavesDeleteButton" type="Button" parent="CanvasLayer/BottomBarContainer/SavesBar"]
+custom_minimum_size = Vector2(90, 35)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.9, 0.9, 1)
+theme_override_colors/font_hover_color = Color(1, 0.4, 0.4, 1)
+theme_override_font_sizes/font_size = 14
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_normal")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_btn_pressed")
+theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
+text = "Delete"
+flat = true
+
+[node name="SavesNewButton" type="Button" parent="CanvasLayer/BottomBarContainer/SavesBar"]
+custom_minimum_size = Vector2(90, 35)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.9, 0.9, 1)
+theme_override_colors/font_hover_color = Color(0.2, 0.8, 1, 1)
+theme_override_font_sizes/font_size = 14
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_normal")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_btn_pressed")
+theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
+text = "New"
+flat = true
+
+[node name="SavesFavoriteButton" type="Button" parent="CanvasLayer/BottomBarContainer/SavesBar"]
+custom_minimum_size = Vector2(90, 35)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.9, 0.9, 1)
+theme_override_colors/font_hover_color = Color(1, 0.8, 0.2, 1)
+theme_override_font_sizes/font_size = 14
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_normal")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_btn_pressed")
+theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
+text = "Favorite"
+flat = true
+
+[node name="InventoryBar" type="HBoxContainer" parent="CanvasLayer/BottomBarContainer"]
+visible = false
+custom_minimum_size = Vector2(300, 0)
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 12
+alignment = 1
+
+[node name="InventorySortButton" type="Button" parent="CanvasLayer/BottomBarContainer/InventoryBar"]
+custom_minimum_size = Vector2(90, 35)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.9, 0.9, 1)
+theme_override_colors/font_hover_color = Color(0.2, 0.8, 1, 1)
+theme_override_font_sizes/font_size = 14
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_normal")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_btn_pressed")
+theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
+text = "Sort"
+flat = true
+
+[node name="InventoryFilterButton" type="Button" parent="CanvasLayer/BottomBarContainer/InventoryBar"]
+custom_minimum_size = Vector2(90, 35)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.9, 0.9, 1)
+theme_override_colors/font_hover_color = Color(0.2, 0.8, 1, 1)
+theme_override_font_sizes/font_size = 14
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_normal")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_btn_pressed")
+theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
+text = "Filter"
+flat = true
+
+[node name="InventoryEquipButton" type="Button" parent="CanvasLayer/BottomBarContainer/InventoryBar"]
+custom_minimum_size = Vector2(90, 35)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.9, 0.9, 1)
+theme_override_colors/font_hover_color = Color(0.2, 0.8, 1, 1)
+theme_override_font_sizes/font_size = 14
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_normal")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_btn_pressed")
+theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
+text = "Equip"
+flat = true
 
 [node name="BottomBarRight" type="HBoxContainer" parent="CanvasLayer/BottomBarContainer"]
+visible = false
 custom_minimum_size = Vector2(300, 0)
 layout_mode = 2
 theme_override_constants/separation = 16
 alignment = 2
+
+[node name="DebugButton" type="Button" parent="CanvasLayer/BottomBarContainer/BottomBarRight"]
+custom_minimum_size = Vector2(90, 35)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.9, 0.9, 1)
+theme_override_colors/font_hover_color = Color(0.2, 0.8, 1, 1)
+theme_override_font_sizes/font_size = 14
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_normal")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_btn_pressed")
+theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
+text = "Debug"
+flat = true
 
 [node name="DiscordButton" type="Button" parent="CanvasLayer/BottomBarContainer/BottomBarRight"]
 custom_minimum_size = Vector2(80, 35)
@@ -362,12 +626,11 @@ flat = true
 layout_mode = 3
 anchor_right = 0.5
 anchor_bottom = 1.0
-offset_left = 50.0
+offset_left = 16.0
 offset_top = 70.0
-offset_right = -25.0
 offset_bottom = -70.0
 
-[node name="MotdPanel" type="PanelContainer" parent="CanvasLayer/Middle"]
+[node name="GameStats" type="PanelContainer" parent="CanvasLayer/Middle"]
 layout_mode = 0
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -377,18 +640,18 @@ offset_right = -16.0
 offset_bottom = -15.0
 theme_override_styles/panel = SubResource("StylePanel")
 
-[node name="MotdVBox" type="VBoxContainer" parent="CanvasLayer/Middle/MotdPanel"]
+[node name="StatsVBox" type="VBoxContainer" parent="CanvasLayer/Middle/GameStats"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 
-[node name="MotdTitle" type="Label" parent="CanvasLayer/Middle/MotdPanel/MotdVBox"]
+[node name="StatTitle" type="Label" parent="CanvasLayer/Middle/GameStats/StatsVBox"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.2, 0.8, 1, 1)
 theme_override_font_sizes/font_size = 18
 text = "Game Info"
 
-[node name="MotdText" type="RichTextLabel" parent="CanvasLayer/Middle/MotdPanel/MotdVBox"]
+[node name="StatText" type="RichTextLabel" parent="CanvasLayer/Middle/GameStats/StatsVBox"]
 layout_mode = 2
 size_flags_vertical = 3
 theme_override_colors/default_color = Color(0.8, 0.95, 1, 1)
@@ -402,9 +665,8 @@ layout_mode = 3
 anchor_left = 0.5
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 25.0
 offset_top = 70.0
-offset_right = -50.0
+offset_right = -16.0
 offset_bottom = -70.0
 
 [node name="ShopPanel" type="PanelContainer" parent="CanvasLayer/Right"]
@@ -424,34 +686,59 @@ size_flags_horizontal = 3
 size_flags_vertical = 3
 theme_override_constants/separation = 12
 
-[node name="TitleLabel" type="Label" parent="CanvasLayer/Right/ShopPanel/VBoxContainer"]
+[node name="ShopTitle" type="Label" parent="CanvasLayer/Right/ShopPanel/VBoxContainer"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.2, 0.8, 1, 1)
 theme_override_font_sizes/font_size = 18
-text = "🛒 Premium Shop"
+text = "Shop"
+
+[node name="ConsumablesTitle" type="Label" parent="CanvasLayer/Right/ShopPanel/VBoxContainer"]
+layout_mode = 2
+text = "Consumables"
 
 [node name="ScrollContainer" type="ScrollContainer" parent="CanvasLayer/Right/ShopPanel/VBoxContainer"]
 layout_mode = 2
-size_flags_vertical = 3
 horizontal_scroll_mode = 0
 
 [node name="GridContainer" type="GridContainer" parent="CanvasLayer/Right/ShopPanel/VBoxContainer/ScrollContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_constants/h_separation = 8
-theme_override_constants/v_separation = 8
-columns = 3
 
-[node name="ComingSoonLabel" type="Label" parent="CanvasLayer/Right/ShopPanel/VBoxContainer"]
+[node name="WeaponsTitle" type="Label" parent="CanvasLayer/Right/ShopPanel/VBoxContainer"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.8, 0.8, 0.8, 1)
-theme_override_font_sizes/font_size = 14
-text = "🛒 Shop Coming Soon! 🛒
-Random buffed items and weapons will be available for purchase here.
+text = "Weapons"
 
-Check back in future updates!"
-horizontal_alignment = 1
-autowrap_mode = 1
+[node name="WeaponsScroll" type="ScrollContainer" parent="CanvasLayer/Right/ShopPanel/VBoxContainer"]
+layout_mode = 2
+horizontal_scroll_mode = 0
+
+[node name="GridContainer" type="GridContainer" parent="CanvasLayer/Right/ShopPanel/VBoxContainer/WeaponsScroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="ShipsTitle" type="Label" parent="CanvasLayer/Right/ShopPanel/VBoxContainer"]
+layout_mode = 2
+text = "Ships"
+
+[node name="ShipsScroll" type="ScrollContainer" parent="CanvasLayer/Right/ShopPanel/VBoxContainer"]
+layout_mode = 2
+horizontal_scroll_mode = 0
+
+[node name="GridContainer" type="GridContainer" parent="CanvasLayer/Right/ShopPanel/VBoxContainer/ShipsScroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Footer" type="HBoxContainer" parent="CanvasLayer/Right/ShopPanel/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 0
+
+[node name="CoinsLabel" type="Label" parent="CanvasLayer/Right/ShopPanel/VBoxContainer/Footer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="BuyButton" type="Button" parent="CanvasLayer/Right/ShopPanel/VBoxContainer/Footer"]
+layout_mode = 2
+size_flags_horizontal = 3
 
 [node name="SettingsPanel" parent="CanvasLayer" instance=ExtResource("5_settings")]
 visible = false
@@ -459,211 +746,6 @@ offset_left = 50.0
 offset_top = 70.0
 offset_right = -50.0
 offset_bottom = -70.0
-
-[node name="CreditsPanel" type="PanelContainer" parent="CanvasLayer"]
-visible = false
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = 50.0
-offset_top = 70.0
-offset_right = -50.0
-offset_bottom = -70.0
-theme_override_styles/panel = SubResource("StylePanel")
-
-[node name="CreditsVBox" type="VBoxContainer" parent="CanvasLayer/CreditsPanel"]
-layout_mode = 2
-theme_override_constants/separation = 20
-
-[node name="CreditsTitle" type="Label" parent="CanvasLayer/CreditsPanel/CreditsVBox"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.2, 0.8, 1, 1)
-theme_override_font_sizes/font_size = 32
-text = "Credits"
-horizontal_alignment = 1
-
-[node name="CreditsText" type="RichTextLabel" parent="CanvasLayer/CreditsPanel/CreditsVBox"]
-layout_mode = 2
-size_flags_vertical = 3
-theme_override_colors/default_color = Color(0.8, 0.95, 1, 1)
-bbcode_enabled = true
-text = "Space Survival RPG
-
-[b]Game Development[/b]
-• Game Design & Programming
-• Art & Visual Effects
-• Sound Design
-
-[b]Technologies[/b]
-• Godot Engine 4.5
-• GDScript
-• Custom Physics System
-
-[b]Special Thanks[/b]
-• Godot Engine Community
-• Open Source Contributors
-• Beta Testers
-
-Thank you for playing our game!"
-autowrap_mode = 1
-
-[node name="CreditsTitle2" type="Label" parent="CanvasLayer/CreditsPanel/CreditsVBox"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.2, 0.8, 1, 1)
-theme_override_font_sizes/font_size = 32
-text = "Credits"
-horizontal_alignment = 1
-
-[node name="CreditsText2" type="RichTextLabel" parent="CanvasLayer/CreditsPanel/CreditsVBox"]
-layout_mode = 2
-size_flags_vertical = 3
-theme_override_colors/default_color = Color(0.8, 0.95, 1, 1)
-bbcode_enabled = true
-text = "Space Survival RPG
-
-[b]Game Development[/b]
-• Game Design & Programming
-• Art & Visual Effects
-• Sound Design
-
-[b]Technologies[/b]
-• Godot Engine 4.5
-• GDScript
-• Custom Physics System
-
-[b]Special Thanks[/b]
-• Godot Engine Community
-• Open Source Contributors
-• Beta Testers
-
-Thank you for playing our game!"
-autowrap_mode = 1
-
-[node name="CreditsVBox2" type="VBoxContainer" parent="CanvasLayer/CreditsPanel"]
-layout_mode = 2
-theme_override_constants/separation = 20
-
-[node name="ChangelogPanel" type="PanelContainer" parent="CanvasLayer"]
-visible = false
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = 100.0
-offset_top = 100.0
-offset_right = -100.0
-offset_bottom = -100.0
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_styles/panel = SubResource("StylePanel")
-script = ExtResource("6_changelog")
-
-[node name="VBoxContainer" type="VBoxContainer" parent="CanvasLayer/ChangelogPanel"]
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_constants/separation = 16
-
-[node name="TitleLabel" type="Label" parent="CanvasLayer/ChangelogPanel/VBoxContainer"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.2, 0.8, 1, 1)
-theme_override_font_sizes/font_size = 28
-text = "🚀 Update History"
-horizontal_alignment = 1
-
-[node name="ScrollContainer" type="ScrollContainer" parent="CanvasLayer/ChangelogPanel/VBoxContainer"]
-layout_mode = 2
-size_flags_vertical = 3
-horizontal_scroll_mode = 0
-
-[node name="RichTextLabel" type="RichTextLabel" parent="CanvasLayer/ChangelogPanel/VBoxContainer/ScrollContainer"]
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_colors/default_color = Color(0.9, 0.9, 0.9, 1)
-theme_override_font_sizes/normal_font_size = 16
-bbcode_enabled = true
-text = "[b]Version 1.0.0 - Initial Release[/b]
-
-• Complete main menu system
-• Professional UI with tabs and settings
-• Audio and graphics controls
-• Credits and help system
-
-[b]Recent Updates[/b]
-
-• [color=yellow]Enhanced Scout AI[/color]
-  • State machine behavior (Orbiting, Attacking, Wandering, Returning)
-  • Realistic ship physics with acceleration and momentum
-  • Circle-strafing combat tactics
-  • Autonomous wandering and exploration
-  • Improved companion agency and intelligence
-  • Uses ScoutPhaser projectiles with advanced targeting
-
-• [color=yellow]Updated Visual Assets[/color]
-  • Player ship now uses Destroyer Max Upgrades texture
-  • Orbiter companions use Trader Scout textures
-  • Better visual distinction between player and support units
-
-• [color=yellow]Combat System Improvements[/color]
-  • Enhanced projectile system with ScoutPhaser support
-  • Better targeting and firing mechanics
-  • Improved combat positioning for scouts
-  • Auto-firing system for player and companions
-
-• [color=yellow]Main Menu Integration[/color]
-  • Complete professional menu system
-  • Working settings panel with audio/video controls
-  • Discord integration and social links
-  • Help system ready for future expansion
-  • Seamless background tiling with proper texture repeat
-
-• [color=yellow]World Generation & Spawning[/color]
-  • Expanded enemy spawn distances (2000px radius, ±8000px biome)
-  • Natural enemy discovery through exploration
-  • Progressive difficulty with 6 enemy types
-  • Experience orb system for progression
-  • Large-scale world for space exploration
-
-• [color=yellow]Player Systems[/color]
-  • Health, XP, and leveling progression
-  • Respawn system with temporary debuffs
-  • Camera zoom controls
-  • Auto-targeting combat system
-  • Physics-based movement with acceleration
-
-• [color=yellow]Game Features[/color]
-  • Space survival RPG gameplay
-  • Wave-based enemy encounters
-  • Companion AI support system
-  • Progressive difficulty scaling
-  • Smooth space physics and controls
-
-[color=cyan]Current Game State:[/color]
-• Fully playable space survival RPG
-• Professional main menu with complete UI
-• Intelligent companion AI system
-• Large explorable world with natural enemy spawning
-• Complete progression and combat systems
-
-[color=cyan]Coming Soon:[/color]
-• Ship builder system
-• Save/load functionality
-• Additional weapon types
-• More enemy varieties
-• Enhanced social features"
-autowrap_mode = 1
-
-[node name="BackButton" type="Button" parent="CanvasLayer/ChangelogPanel/VBoxContainer"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.9, 0.9, 0.9, 1)
-theme_override_colors/font_focus_color = Color(0.2, 0.8, 1, 1)
-theme_override_colors/font_pressed_color = Color(0.2, 0.8, 1, 1)
-theme_override_colors/font_hover_color = Color(0.2, 0.8, 1, 1)
-theme_override_font_sizes/font_size = 18
-text = "← Back to Menu"
-
-[node name="VBoxContainer2" type="VBoxContainer" parent="CanvasLayer/ChangelogPanel"]
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_constants/separation = 16
 
 [node name="GalleryPanel" type="PanelContainer" parent="CanvasLayer"]
 visible = false
@@ -677,46 +759,6 @@ offset_bottom = -70.0
 theme_override_styles/panel = SubResource("StylePanel")
 script = ExtResource("8_gallery")
 
-[node name="HeaderContainer" type="HBoxContainer" parent="CanvasLayer/GalleryPanel"]
-layout_mode = 2
-theme_override_constants/separation = 16
-
-[node name="SortButton" type="Button" parent="CanvasLayer/GalleryPanel/HeaderContainer"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.9, 0.9, 0.9, 1)
-theme_override_colors/font_focus_color = Color(0.2, 0.8, 1, 1)
-theme_override_colors/font_pressed_color = Color(0.2, 0.8, 1, 1)
-theme_override_colors/font_hover_color = Color(0.2, 0.8, 1, 1)
-theme_override_font_sizes/font_size = 16
-text = "Sort: Newest ↓"
-
-[node name="FilterButton" type="Button" parent="CanvasLayer/GalleryPanel/HeaderContainer"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.9, 0.9, 0.9, 1)
-theme_override_colors/font_focus_color = Color(0.2, 0.8, 1, 1)
-theme_override_colors/font_pressed_color = Color(0.2, 0.8, 1, 1)
-theme_override_colors/font_hover_color = Color(0.2, 0.8, 1, 1)
-theme_override_font_sizes/font_size = 16
-text = "Filter: All"
-
-[node name="FormatButton" type="Button" parent="CanvasLayer/GalleryPanel/HeaderContainer"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.9, 0.9, 0.9, 1)
-theme_override_colors/font_focus_color = Color(0.2, 0.8, 1, 1)
-theme_override_colors/font_pressed_color = Color(0.2, 0.8, 1, 1)
-theme_override_colors/font_hover_color = Color(0.2, 0.8, 1, 1)
-theme_override_font_sizes/font_size = 16
-text = "Format: PNG"
-
-[node name="BackButton" type="Button" parent="CanvasLayer/GalleryPanel/HeaderContainer"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.9, 0.9, 0.9, 1)
-theme_override_colors/font_focus_color = Color(0.2, 0.8, 1, 1)
-theme_override_colors/font_pressed_color = Color(0.2, 0.8, 1, 1)
-theme_override_colors/font_hover_color = Color(0.2, 0.8, 1, 1)
-theme_override_font_sizes/font_size = 16
-text = "← Back"
-
 [node name="ScrollContainer" type="ScrollContainer" parent="CanvasLayer/GalleryPanel"]
 layout_mode = 2
 size_flags_vertical = 3
@@ -725,9 +767,10 @@ horizontal_scroll_mode = 0
 [node name="GridContainer" type="GridContainer" parent="CanvasLayer/GalleryPanel/ScrollContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
+size_flags_vertical = 3
 theme_override_constants/h_separation = 10
 theme_override_constants/v_separation = 10
-columns = 4
+columns = 3
 
 [node name="FullscreenViewer" type="Control" parent="CanvasLayer/GalleryPanel"]
 visible = false
@@ -742,86 +785,11 @@ offset_top = -300.0
 offset_bottom = 300.0
 expand_mode = 1
 
-[node name="CloseButton" type="Button" parent="CanvasLayer/GalleryPanel/FullscreenViewer"]
-layout_mode = 0
-anchor_left = 1.0
-anchor_right = 1.0
-offset_left = -50.0
-offset_top = 10.0
-offset_right = -10.0
-offset_bottom = 50.0
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_font_sizes/font_size = 20
-text = "×"
-
-[node name="FavoriteButton" type="Button" parent="CanvasLayer/GalleryPanel/FullscreenViewer"]
-layout_mode = 0
-anchor_left = 1.0
-anchor_right = 1.0
-offset_left = -90.0
-offset_top = 60.0
-offset_right = -10.0
-offset_bottom = 100.0
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_font_sizes/font_size = 18
-text = "Favorite"
-
-[node name="DeleteButton" type="Button" parent="CanvasLayer/GalleryPanel/FullscreenViewer"]
-layout_mode = 0
-anchor_left = 1.0
-anchor_right = 1.0
-offset_left = -90.0
-offset_top = 110.0
-offset_right = -10.0
-offset_bottom = 150.0
-theme_override_colors/font_color = Color(1, 0.5, 0.5, 1)
-theme_override_font_sizes/font_size = 18
-text = "Delete"
-
-[node name="OpenFolderButton" type="Button" parent="CanvasLayer/GalleryPanel/FullscreenViewer"]
-layout_mode = 0
-anchor_left = 1.0
-anchor_right = 1.0
-offset_left = -150.0
-offset_top = 160.0
-offset_right = -10.0
-offset_bottom = 200.0
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_font_sizes/font_size = 18
-text = "Open Folder"
-
-[node name="SettingsPanel2" parent="CanvasLayer" instance=ExtResource("5_settings")]
-visible = false
-offset_left = 50.0
-offset_top = 70.0
-offset_right = -50.0
-offset_bottom = -70.0
-
-[node name="CreditsPanel2" type="PanelContainer" parent="CanvasLayer"]
-visible = false
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = 50.0
-offset_top = 70.0
-offset_right = -50.0
-offset_bottom = -70.0
-theme_override_styles/panel = SubResource("StylePanel")
-
-[node name="ChangelogPanel2" type="PanelContainer" parent="CanvasLayer"]
-visible = false
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = 100.0
-offset_top = 100.0
-offset_right = -100.0
-offset_bottom = -100.0
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_styles/panel = SubResource("StylePanel")
-script = ExtResource("6_changelog")
-
 [node name="ShipBuilderPanel" parent="CanvasLayer" instance=ExtResource("9_shipbuilder")]
 
 [node name="SavesPanel" parent="CanvasLayer" instance=ExtResource("10_saves")]
+visible = false
+
+[node name="DebugMenu" parent="." instance=ExtResource("11_debug_menu")]
+debug_enabled = false
+embed_in_layout = true

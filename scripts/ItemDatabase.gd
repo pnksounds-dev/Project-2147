@@ -1,17 +1,28 @@
 extends Node
 
-class_name ItemDatabase
-
 ## ItemDatabase - Centralized item and pricing data for trading system
+
+signal system_ready
 
 enum ItemType { WEAPON, UPGRADE, CONSUMABLE, RESOURCE }
 
 # Item structure: {name, type, buy_price, sell_price, icon_path, description}
 var items: Dictionary = {}
+var initialized: bool = false
 
 func _ready():
+	add_to_group("item_database")
+	# Don't auto-initialize in _ready - let loading screen handle it
+
+func initialize() -> void:
+	"""Initialize item database for loading screen"""
+	print("ItemDatabase: Initializing...")
+	
 	_initialize_items()
-	print("ItemDatabase: Initialized with ", items.size(), " items")
+	
+	initialized = true
+	system_ready.emit()
+	print("ItemDatabase: Initialization complete with ", items.size(), " items")
 
 func _initialize_items():
 	"""Initialize all available items for trading"""

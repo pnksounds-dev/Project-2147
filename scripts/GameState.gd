@@ -7,6 +7,21 @@ var _selected_ship := {
 	"texture": "",
 }
 
+# === UNIFIED INVENTORY REFACTOR: Current save tracking ===
+var _current_save_id: String = ""
+
+func set_current_save_id(save_id: String) -> void:
+	"""Set the currently selected save ID."""
+	_current_save_id = save_id
+
+func get_current_save_id() -> String:
+	"""Get the currently selected save ID."""
+	return _current_save_id
+
+func clear_current_save_id() -> void:
+	"""Clear the current save ID."""
+	_current_save_id = ""
+
 func set_selected_ship(ship_id: String, ship_name: String = "", ship_texture: String = "", ship_type: String = "") -> void:
 	_selected_ship.id = ship_id
 	if not ship_name.is_empty():

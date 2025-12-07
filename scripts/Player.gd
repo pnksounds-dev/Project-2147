@@ -4,13 +4,12 @@ signal health_changed(current_health, max_health)
 signal xp_changed(current_xp, xp_required)
 signal level_changed(level)
 
-# Weapon system
-const WeaponManager = preload("res://scripts/weapons/WeaponManager.gd")
-const WeaponBase = preload("res://scripts/weapons/WeaponBase.gd")
+const InventorySlotTypeClass = preload("res://scripts/InventorySlotType.gd")
 
+# Weapon system
 @export var speed = 300.0
 @export var acceleration = 800.0
-@export var friction = 80.0
+@export var friction = 8.0
 @export var fire_rate = 0.5
 
 #next code
@@ -21,6 +20,7 @@ var skill_points = 0
 var max_health = 100.0
 var current_health = max_health
 var is_dead = false
+var god_mode: bool = false
 var current_weapon_slot_item: Dictionary
 var _input_log_timer := 0.0
 const DEBUG_PLAYER_INPUT_LOG := false
@@ -48,6 +48,9 @@ func _ready():
 	collision_layer = 1  # Player layer
 	collision_mask = 2   # Detect enemies (layer 2) - projectiles detect player, not vice versa
 	
+	# Apply ship texture from GameState if available
+	_apply_ship_texture_from_game_state()
+	
 	# Initialize weapon system
 	_setup_weapon_system()
 	# Cache reference to unified WeaponSystem for Phaser handling
@@ -63,6 +66,29 @@ func _ready():
 	health_changed.emit(current_health, max_health)
 	xp_changed.emit(current_xp, xp_required)
 	level_changed.emit(level)
+
+func _apply_ship_texture_from_game_state():
+	"""Apply ship texture from GameState to the player sprite"""
+	var sprite = $Sprite2D
+	if not sprite:
+		GameLog.log_error("Player: Sprite2D node not found")
+		return
+	
+	var game_state = get_node_or_null("/root/GameState")
+	if not game_state:
+		GameLog.log_player("Player: GameState not found, using default texture")
+		return
+	
+	var ship_texture_path = game_state.get_selected_ship_texture()
+	if ship_texture_path != "" and ResourceLoader.exists(ship_texture_path):
+		var texture = load(ship_texture_path)
+		if texture:
+			sprite.texture = texture
+			GameLog.log_player("Player: Applied ship texture: " + ship_texture_path)
+		else:
+			GameLog.log_error("Player: Failed to load ship texture: " + ship_texture_path)
+	else:
+		GameLog.log_player("Player: No custom ship texture found, using default")
 
 ## Set up the weapon manager (inventory-driven weapons)
 func _setup_weapon_system() -> void:
@@ -127,13 +153,23 @@ func spawn_scouts():
 		get_parent().call_deferred("add_child", scout)
 
 func take_damage(amount):
-	if is_dead: return
+	if is_dead or god_mode:
+		return
 	current_health -= amount
 	health_changed.emit(current_health, max_health)
 	GameLog.log_combat("Player took damage: %d, Health: %d" % [amount, current_health])
 	print("Player Health: ", current_health)
 	if current_health <= 0:
 		die()
+
+func set_health(value: float) -> void:
+	current_health = clamp(value, 0.0, max_health)
+	health_changed.emit(current_health, max_health)
+	print("Player: Health set to ", current_health, "/", max_health)
+
+func set_god_mode(enabled: bool) -> void:
+	god_mode = enabled
+	print("Player: God mode ", "ENABLED" if god_mode else "DISABLED")
 
 func die():
 	is_dead = true
@@ -251,28 +287,40 @@ func on_coin_pickup(amount: int = 1):
 func _input(event: InputEvent) -> void:
 	# Handle weapon firing
 	if event is InputEventMouseButton:
+		var mouse_pos = get_global_mouse_position()
+		
+		# Left Mouse Button -> Weapon 1 (Index 0)
 		if event.button_index == MOUSE_BUTTON_LEFT:
 			if event.pressed:
-				var mouse_pos = get_global_mouse_position()
-				var weapon_system = _get_weapon_system()
-				if weapon_system and weapon_system.has_method("_fire_phaser"):
-					weapon_system._fire_phaser(mouse_pos, true)
+				if weapon_manager and weapon_manager.is_active():
+					weapon_manager.fire_weapon_index(0, mouse_pos)
 			else:
-				var weapon_system = _get_weapon_system()
-				if weapon_system and weapon_system.has_method("stop_phaser"):
-					weapon_system.stop_phaser()
-	
-	# Weapon switching with number keys
+				if weapon_manager:
+					weapon_manager.stop_firing_index(0)
+		
+		# Right Mouse Button -> Weapon 2 (Index 1)
+		elif event.button_index == MOUSE_BUTTON_RIGHT:
+			if event.pressed:
+				if weapon_manager and weapon_manager.is_active():
+					weapon_manager.fire_weapon_index(1, mouse_pos)
+			else:
+				if weapon_manager:
+					weapon_manager.stop_firing_index(1)
+					
+		# Handle FOV zoom with mouse wheel
+		elif event.button_index == MOUSE_BUTTON_WHEEL_UP:
+			_zoom_in()
+		elif event.button_index == MOUSE_BUTTON_WHEEL_DOWN:
+			_zoom_out()
+
+	# Handle UI toggles
 	if event is InputEventKey and event.pressed:
-		match event.keycode:
-			KEY_1:
-				weapon_manager.set_current_weapon_index(0)
-			KEY_2:
-				weapon_manager.set_current_weapon_index(1)
-			KEY_3:
-				weapon_manager.set_current_weapon_index(2)
-			KEY_R:
-				weapon_manager.reload_weapon()
+		if event.keycode == KEY_E:
+			_toggle_inventory()
+			get_viewport().set_input_as_handled()
+		elif event.keycode == KEY_F:
+			_handle_interaction()
+			get_viewport().set_input_as_handled()
 	
 func _physics_process(delta: float) -> void:
 	# Update debug timers
@@ -316,30 +364,15 @@ func _physics_process(delta: float) -> void:
 	# Check for nearby interactable objects and show/hide interaction prompt
 	_update_interaction_prompt()
 
-func _unhandled_input(event):
-	# Handle inventory toggle
-	if event is InputEventKey and event.pressed:
-		if event.keycode == KEY_E:
-			_toggle_inventory()
-			return
-		elif event.keycode == KEY_F:
-			_handle_interaction()
-			return
-	
-	# Handle FOV zoom with mouse wheel
-	if event is InputEventMouseButton:
-		if event.button_index == MOUSE_BUTTON_WHEEL_UP:
-			_zoom_in()
-			return
-		elif event.button_index == MOUSE_BUTTON_WHEEL_DOWN:
-			_zoom_out()
-			return
+func _unhandled_input(_event):
+	# Moved to _input for better reliability with UI overlays
+	pass
 
 func _get_weapon_slot_item() -> Dictionary:
 	var inventory_state = _get_inventory_state()
 	if not inventory_state:
 		return {}
-	return inventory_state.get_equipped_item(InventoryState.SlotType.WEAPON1)
+	return inventory_state.get_equipped_item(InventorySlotTypeClass.SlotType.WEAPON1)
 
 func _get_inventory_state() -> InventoryState:
 	if _inventory_state == null:
@@ -364,25 +397,25 @@ func _toggle_inventory():
 	if inventory_ui and inventory_ui.has_method("toggle_inventory"):
 		inventory_ui.toggle_inventory()
 
-func _on_weapon_switched(weapon: WeaponBase) -> void:
+func _on_weapon_switched(weapon: BaseWeapon) -> void:
 	if not weapon:
 		return
-	print("Player: Weapon switched to: ", weapon.weapon_name)
+	print("Player: Weapon switched to: ", weapon.name) # BaseWeapon uses name or weapon_id
 
 	var hud = get_tree().get_first_node_in_group("hud")
 	if hud and hud.has_method("switch_weapon"):
 		hud.switch_weapon(0)  # TODO: Map to actual HUD index when inventory integration is complete
 
 
-func _on_weapon_fired(_weapon: WeaponBase, _target_position: Vector2) -> void:
+func _on_weapon_fired(_weapon: BaseWeapon, _target_position: Vector2) -> void:
 	_log_message("Weapon fired", "Combat")
 
 
-func _on_weapon_reloaded(_weapon: WeaponBase) -> void:
+func _on_weapon_reloaded(_weapon: BaseWeapon) -> void:
 	_log_message("Weapon reloaded", "Combat")
 
 
-func _on_weapon_state_changed(_weapon: WeaponBase, _state: int) -> void:
+func _on_weapon_state_changed(_weapon: BaseWeapon, _state: int) -> void:
 	pass
 
 func _on_coins_changed(new_amount: int):
@@ -477,23 +510,44 @@ func set_fov_range(min_fov: float, max_fov: float):
 func get_current_fov() -> float:
 	return current_fov
 
+# Interaction system
+var current_interactable: Node2D = null
+var interaction_range: float = 1000.0  # Increased interaction distance for easier access
+
 func _handle_interaction():
 	"""Handle F-key interaction with nearby objects"""
+	# Force update to ensure we have the latest state
+	_update_current_interactable()
+	
 	print("Player: F-key interaction pressed")
 	
-	# Check for nearby ARK for trading
-	var nearby_ark = _get_nearby_ark()
-	if nearby_ark:
-		_open_trading_interface(nearby_ark)
-		return
+	# Check if we have a valid current interactable
+	if current_interactable and is_instance_valid(current_interactable):
+		if global_position.distance_to(current_interactable.global_position) <= interaction_range:
+			# Handle different types of interactables
+			if current_interactable is Ark:
+				_open_trading_interface(current_interactable)
+				return
+			# Add other interactable types here in future
+		else:
+			# Clear interactable if out of range
+			current_interactable = null
 	
-	# Check for other interactable objects here in future
-	print("Player: No interactable objects nearby")
+	# Debug why it failed
+	var arks = get_tree().get_nodes_in_group("ark_ships")
+	if not arks.is_empty():
+		var nearest = arks[0]
+		var dist = global_position.distance_to(nearest.global_position)
+		for a in arks:
+			var d = global_position.distance_to(a.global_position)
+			if d < dist:
+				dist = d
+		print("Player: No interactable in range. Nearest Ark is ", dist, " units away (Range: ", interaction_range, ")")
+	else:
+		print("Player: No interactable objects nearby (No Arks found in group)")
 
 func _get_nearby_ark() -> Ark:
-	"""Check if player is near an ARK station"""
-	var interaction_range = 150.0  # Interaction distance
-	
+	"""Check if player is near an ARK station (legacy method)"""
 	var arks = get_tree().get_nodes_in_group("ark_ships")
 	for ark in arks:
 		if global_position.distance_to(ark.global_position) <= interaction_range:
@@ -502,43 +556,107 @@ func _get_nearby_ark() -> Ark:
 	
 	return null
 
-func _open_trading_interface(_ark: Ark):
+func _open_trading_interface(_ark: Ark) -> void:
 	"""Open trading interface with ARK"""
+	# Phase 1: Prevent multiple instances
+	if get_tree().get_first_node_in_group("trading_panel"):
+		print("Player: Trading panel already open")
+		return
+
 	print("Player: Opening trading interface with ARK")
 	
-	# Find trading panel
-	var trading_panel = get_tree().get_first_node_in_group("trading_panel")
-	if not trading_panel:
-		# Trading panel scene doesn't exist yet - show notification
-		var hud = get_tree().get_first_node_in_group("hud")
-		if hud and hud.has_method("show_notification"):
-			hud.show_notification("Trading with ARK - Coming Soon!", 3.0)
-		else:
-			print("Player: Trading with ARK - Coming Soon!")
-		return
+	# Hide interaction prompt
+	var interaction_prompt = get_tree().get_first_node_in_group("interaction_prompt")
+	if interaction_prompt:
+		interaction_prompt.hide_prompt()
 	
-	# Open the trading interface
-	if trading_panel and trading_panel.has_method("open_trading"):
-		trading_panel.open_trading()
-		
-		# Play interaction sound
-		var audio_manager = get_tree().get_first_node_in_group("audio_manager")
-		if audio_manager:
-			audio_manager.play_ui_sound("button_click")
+	# Instantiate our new programmatic TradingPanel
+	var trading_panel = TradingPanel.new()
+	
+	# Allow configuring specific items if ARK provides them, 
+	# otherwise TradingPanel defaults to all items.
+	# if _ark.has_method("get_items_for_sale"):
+	# 	trading_panel.set_items(_ark.get_items_for_sale())
+	
+	# Attach to HUD
+	var hud = get_tree().get_first_node_in_group("hud")
+	if hud:
+		hud.add_child(trading_panel)
 	else:
-		print("Player: Trading panel not available")
+		get_tree().root.add_child(trading_panel)
+		
+	trading_panel.show_panel()
+	
+	# Connect close signal for any cleanup
+	trading_panel.closed.connect(func(): print("Player: Trading panel closed"))
+	
+	# Play sound
+	var audio_manager = get_tree().get_first_node_in_group("audio_manager")
+	if audio_manager:
+		audio_manager.play_ui_sound("button_click")
+
+# _on_item_purchased is no longer needed as TradingPanel handles transactions internally
+# Keeping the function signature if you want to reuse it for other things, 
+# otherwise it can be removed or left empty.
+func _on_item_purchased(_item_id: String) -> void:
+	pass
+
+func _get_item_data(item_id: String) -> Dictionary:
+	"""Get item data from database"""
+	var item_database = get_tree().get_first_node_in_group("item_database")
+	if item_database and item_database.has_method("get_item"):
+		return item_database.get_item(item_id)
+	return {}
 
 func _update_interaction_prompt():
 	"""Update interaction prompt based on nearby objects"""
 	var interaction_prompt = get_tree().get_first_node_in_group("interaction_prompt")
 	if not interaction_prompt:
+		# print("Player: No InteractionPrompt found in 'interaction_prompt' group")
 		return
 	
-	var nearby_ark = _get_nearby_ark()
-	if nearby_ark:
-		# Show interaction prompt for ARK
-		interaction_prompt.show_prompt(nearby_ark, "Press F to Trade")
+	# print("Player: InteractionPrompt found, updating current interactable")
+	
+	# Update current_interactable based on proximity
+	_update_current_interactable()
+	
+	if current_interactable and is_instance_valid(current_interactable):
+		# Show interaction prompt based on interactable type
+		var prompt_text = "Press F to Interact"
+		if current_interactable is Ark:
+			prompt_text = "Press [F] to Trade"
+		
+		interaction_prompt.show_prompt(current_interactable, prompt_text)
 		interaction_prompt.update_position(global_position)
 	else:
 		# Hide interaction prompt if no interactable objects nearby
 		interaction_prompt.hide_prompt()
+
+func _update_current_interactable():
+	"""Update current_interactable based on proximity"""
+	# Check for nearby ARK ships
+	var arks = get_tree().get_nodes_in_group("ark_ships")
+	# print("Player: Found ", arks.size(), " ARK ships in 'ark_ships' group")
+	
+	for ark in arks:
+		var distance = global_position.distance_to(ark.global_position)
+		# print("Player: Checking ARK at distance: ", distance, " (range: ", interaction_range, ")")
+		if distance <= interaction_range:
+			current_interactable = ark
+			# print("Player: Set current_interactable to ARK")
+			return
+	
+	# No interactables found
+	current_interactable = null
+	# print("Player: No ARK ships in range")
+
+func _on_trader_panel_closed():
+	"""Called when trader panel is closed"""
+	print("Player: Trader panel closed")
+	# Clean up the trader panel instance to prevent memory leaks
+	var trader_panel = get_tree().get_first_node_in_group("trader_panel")
+	if trader_panel and is_instance_valid(trader_panel):
+		trader_panel.queue_free()
+	
+	# Update interaction prompt to show again if still in range
+	_update_interaction_prompt()

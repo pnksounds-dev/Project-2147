@@ -17,7 +17,7 @@ var _player: Node2D
 # Entity scenes
 const ENEMY_SCENES = {
 	"mimic": preload("res://scenes/HypnoMimic.tscn"),
-	"drone": preload("res://scenes/Enemy.tscn"),
+	"drone": preload("res://scenes/DroneMimic.tscn"),
 	"scout": preload("res://scenes/Scout.tscn")
 	# "trader": preload("res://scenes/Trader.tscn")  # Not available yet
 }

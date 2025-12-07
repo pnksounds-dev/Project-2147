@@ -7,6 +7,7 @@ class_name BaseWeapon
 signal weapon_fired(weapon: BaseWeapon, target_position: Vector2)
 signal weapon_stopped(weapon: BaseWeapon)
 signal weapon_reloaded(weapon: BaseWeapon)
+signal weapon_ready(weapon: BaseWeapon)
 
 @export var weapon_id: String = ""
 @export var weapon_type: String = "Science | Resources"
@@ -51,6 +52,24 @@ func _adjust_collision_shape():
 func set_owner_node(weapon_owner: Node2D):
 	"""Set the owner node for this weapon"""
 	owner_node = weapon_owner
+
+func equip(weapon_owner: Node2D) -> void:
+	"""Compat method for WeaponManager"""
+	set_owner_node(weapon_owner)
+	# BaseWeapon doesn't track equipped state explicitly, but we can assume it's ready
+	
+func unequip() -> void:
+	"""Compat method for WeaponManager"""
+	stop_firing()
+	owner_node = null
+
+func get_state() -> int:
+	# return 0 (IDLE) or 1 (FIRING) based on is_firing
+	return 1 if is_firing else 0
+
+func is_ready() -> bool:
+	return fire_timer <= 0
+
 
 func fire_weapon(target_position: Vector2, weapon_owner: Node2D = null) -> bool:
 	"""Fire weapon - override in individual weapons"""
@@ -104,8 +123,12 @@ func reload_weapon():
 
 func _process(delta):
 	"""Update fire timer"""
+	var was_ready := fire_timer <= 0
 	if fire_timer > 0:
 		fire_timer -= delta
+		if fire_timer <= 0 and not was_ready:
+			fire_timer = 0
+			emit_signal("weapon_ready", self)
 
 # Override in individual weapons
 func get_weapon_data() -> Dictionary:

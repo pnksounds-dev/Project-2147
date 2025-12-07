@@ -225,50 +225,65 @@ func _draw_scope(canvas: Control, range_units: float, is_map: bool) -> void:
 				continue
 				
 			var pos = center + rel * scale_factor
-			if rect.has_point(pos):
-				# Draw texture if available and we are zoomed in enough (or it's an Ark/Mothership)
-				var drawn_texture = false
-				if entity.has("texture") and entity.texture and (map_zoom_level < 2.0 or entity.type == "ark" or entity.type == "mothership"):
-					var tex = entity.texture
-					var tex_size = tex.get_size()
-					var draw_scale = Vector2(0.5, 0.5) # Default scale down
+			# Draw texture if available and we are zoomed in enough (or it's an Ark/Mothership)
+			var drawn_texture = false
+			if entity.has("texture") and entity.texture and (map_zoom_level < 2.0 or entity.type == "ark" or entity.type == "mothership"):
+				var tex = entity.texture
+				var tex_size = tex.get_size()
+				
+				# Calculate proper scale to match world size 1:1
+				# scale_factor is (map pixels / world units)
+				# Texture is (pixels / world units) assuming 1:1 sprite
+				# We want (map pixels) = (world units) * scale_factor
+				# Since texture pixels usually == world units (unless scaled), draw_scale should be scale_factor.
+				
+				# Get entity visual scale from tracker (captures Sprite2D scale)
+				var entity_scale = entity.get("visual_scale", Vector2.ONE)
+				
+				# Fallback if visual_scale missing but node is valid
+				if not entity.has("visual_scale") and entity.has("node") and is_instance_valid(entity.node):
+					entity_scale = entity.node.global_scale
 					
-					# Scale based on type
-					if entity.type == "ark": draw_scale = Vector2(0.2, 0.2)
-					elif entity.type == "mothership": draw_scale = Vector2(0.15, 0.15)
-					elif entity.type == "orb": draw_scale = Vector2(0.5, 0.5)
-					else: draw_scale = Vector2(0.1, 0.1) # Tiny ships
-					
-					# Adjust scale for map zoom
-					if is_map:
-						draw_scale *= (1.0 / map_zoom_level)
-					
+				# Apply scale factor and entity scale
+				var draw_scale = entity_scale * scale_factor
+				
+				# Handle case where sprite is too small on map
+				# For Ark/Mothership, we enforce 1:1 scale always as requested
+				# For smaller entities, we might want a minimum size or fallback to circle
+				
+				# Only draw texture if it will be at least a few pixels, or it's a major structure
+				if (tex_size.x * draw_scale.x) > 2.0 or entity.type == "ark" or entity.type == "mothership":
 					var rot = entity.get("rotation", 0.0)
 					
 					canvas.draw_set_transform(pos, rot, draw_scale)
 					canvas.draw_texture(tex, -tex_size / 2.0, entity.color) # Tint with faction color
 					canvas.draw_set_transform(Vector2.ZERO, 0, Vector2.ONE) # Reset transform
 					drawn_texture = true
+			
+			if not drawn_texture:
+				# Fallback to circle
+				var radius = 4
+				if entity.type == "ark": radius = 8
+				elif entity.type == "orb": radius = 2
 				
-				if not drawn_texture:
-					# Fallback to circle
-					var radius = 4
-					if entity.type == "ark": radius = 8
-					elif entity.type == "orb": radius = 2
-					
-					canvas.draw_circle(pos, radius, entity.color)
+				canvas.draw_circle(pos, radius, entity.color)
 
 	# Draw Player
 	if _player.has_node("Sprite2D") and (map_zoom_level < 2.0 or not is_map):
 		var tex = _player.get_node("Sprite2D").texture
 		if tex:
 			var tex_size = tex.get_size()
-			var draw_scale = Vector2(0.1, 0.1)
-			if is_map: draw_scale *= (1.0 / map_zoom_level)
+			var entity_scale = _player.global_scale
+			var draw_scale = entity_scale * scale_factor
 			
-			canvas.draw_set_transform(center, _player.rotation, draw_scale)
-			canvas.draw_texture(tex, -tex_size / 2.0, Color.WHITE)
-			canvas.draw_set_transform(Vector2.ZERO, 0, Vector2.ONE)
+			# Check visibility size
+			if (tex_size.x * draw_scale.x) > 2.0:
+				canvas.draw_set_transform(center, _player.rotation, draw_scale)
+				canvas.draw_texture(tex, -tex_size / 2.0, Color.WHITE)
+				canvas.draw_set_transform(Vector2.ZERO, 0, Vector2.ONE)
+			else:
+				# Too small, draw circle fallback
+				canvas.draw_circle(center, 3, Color.GREEN)
 	else:
 		canvas.draw_circle(center, 5, Color.GREEN)
 

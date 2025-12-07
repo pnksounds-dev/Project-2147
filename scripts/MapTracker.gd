@@ -8,7 +8,7 @@ class_name MapTracker
 signal entity_added(entity: Node2D, type: String)
 signal entity_removed(entity: Node2D, type: String)
 
-@export var tracking_radius: float = 4000.0  # How far to track from player
+@export var tracking_radius: float = 10000.0  # How far to track from player
 @export var update_interval: float = 0.2  # Update frequency
 
 var _tracked_entities: Dictionary = {}  # entity -> {type, last_pos, color}
@@ -93,11 +93,21 @@ func _add_or_update_entity(entity: Node2D, type: String, color: Color) -> void:
 	var id = entity.get_instance_id()
 	if id not in _tracked_entities:
 		var texture = null
+		var rotation = entity.rotation
+		var visual_scale = entity.global_scale
+		
 		# Try to find a sprite to get texture from
 		if entity.has_node("Sprite2D"):
-			texture = entity.get_node("Sprite2D").texture
+			var sprite: Sprite2D = entity.get_node("Sprite2D")
+			texture = sprite.texture
+			visual_scale = sprite.global_scale # Capture the visual scale of the sprite
+			# For Ark ships, the visual rotation is on the Sprite2D, not the root node.
+			# Use the sprite's global rotation so the minimap icon matches.
+			if entity.is_in_group("ark_ships"):
+				rotation = sprite.global_rotation
 		elif entity is Sprite2D:
 			texture = entity.texture
+			visual_scale = entity.global_scale
 			
 		_tracked_entities[id] = {
 			"type": type,
@@ -105,12 +115,24 @@ func _add_or_update_entity(entity: Node2D, type: String, color: Color) -> void:
 			"last_pos": entity.global_position,
 			"node": entity,
 			"texture": texture,
-			"rotation": entity.rotation
+			"rotation": rotation,
+			"visual_scale": visual_scale
 		}
 		entity_added.emit(entity, type)
 	else:
 		_tracked_entities[id]["last_pos"] = entity.global_position
-		_tracked_entities[id]["rotation"] = entity.rotation
+		
+		var updated_rotation = entity.rotation
+		var updated_scale = entity.global_scale
+		
+		if entity.has_node("Sprite2D"):
+			var sprite: Sprite2D = entity.get_node("Sprite2D")
+			updated_scale = sprite.global_scale
+			if entity.is_in_group("ark_ships"):
+				updated_rotation = sprite.global_rotation
+				
+		_tracked_entities[id]["rotation"] = updated_rotation
+		_tracked_entities[id]["visual_scale"] = updated_scale
 
 func _remove_entity_by_id(id: int) -> void:
 	if id in _tracked_entities:
@@ -137,13 +159,9 @@ func get_nearby_entities(type: String = "") -> Array:
 		# CRITICAL: Check validity before accessing properties
 		if is_instance_valid(node):
 			if type == "" or data["type"] == type:
-				result.append({
-					"entity": node,
-					"type": data["type"],
-					"position": node.global_position, # Safe access
-					"color": data["color"],
-					"node": node
-				})
+				# Return the tracked data dictionary directly so consumers
+				# (like RadarHUD) can access last_pos, color, texture, rotation, etc.
+				result.append(data)
 		else:
 			# Lazy cleanup if we encounter invalid nodes during read
 			_remove_entity_by_id(id)

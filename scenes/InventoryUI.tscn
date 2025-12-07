@@ -19,6 +19,13 @@ border_color = Color(0, 0, 0, 0)
 corner_radius_top_left = 4
 corner_radius_top_right = 4
 
+[sub_resource type="StyleBoxFlat" id="TransparentStyle"]
+bg_color = Color(0, 0, 0, 0)
+border_width_left = 0
+border_width_top = 0
+border_width_right = 0
+border_width_bottom = 0
+
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn_pressed"]
 bg_color = Color(0.2, 0.8, 1, 0.25)
 border_width_bottom = 3
@@ -35,6 +42,30 @@ corner_radius_top_right = 4
 
 [sub_resource type="ButtonGroup" id="ButtonGroup_tabs"]
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_equip_panel"]
+bg_color = Color(0.04, 0.05, 0.07, 0.75)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.15, 0.25, 0.4, 0.35)
+corner_radius_top_left = 2
+corner_radius_top_right = 2
+corner_radius_bottom_right = 2
+corner_radius_bottom_left = 2
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_cargo_panel"]
+bg_color = Color(0.04, 0.05, 0.07, 0.75)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.2, 0.35, 0.55, 0.35)
+corner_radius_top_left = 2
+corner_radius_top_right = 2
+corner_radius_bottom_right = 2
+corner_radius_bottom_left = 2
+
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_header_clear"]
 bg_color = Color(0, 0, 0, 0)
 
@@ -50,168 +81,55 @@ border_width_right = 1
 border_width_bottom = 1
 border_color = Color(0.3, 0.5, 0.8, 0.5)
 
-[node name="InventoryUI" type="CanvasLayer"]
-process_mode = 3
-layer = 100
+[node name="InventoryUI" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
 script = ExtResource("1_script")
 
-[node name="BackgroundRenderer" parent="." instance=ExtResource("2_bg_renderer")]
-
-[node name="TopBar" type="Panel" parent="."]
-z_index = 10
-anchors_preset = 10
-anchor_right = 1.0
-offset_bottom = 55.0
-mouse_filter = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_glass_panel")
-
-[node name="TopBarContent" type="MarginContainer" parent="TopBar"]
-layout_mode = 0
-anchor_right = 1.0
-anchor_bottom = 1.0
-theme_override_constants/margin_left = 24
-theme_override_constants/margin_top = 8
-theme_override_constants/margin_right = 24
-theme_override_constants/margin_bottom = 8
-
-[node name="TopBarContainer" type="HBoxContainer" parent="TopBar/TopBarContent"]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
-theme_override_constants/separation = 0
-
-[node name="TopBarLeft" type="HBoxContainer" parent="TopBar/TopBarContent/TopBarContainer"]
-layout_mode = 2
-size_flags_vertical = 3
-theme_override_constants/separation = 12
-
-[node name="InventoryButton" type="Button" parent="TopBar/TopBarContent/TopBarContainer/TopBarLeft"]
-custom_minimum_size = Vector2(100, 35)
-layout_mode = 2
-theme_override_colors/font_color = Color(0.9, 0.9, 0.9, 1)
-theme_override_colors/font_hover_color = Color(0.2, 0.8, 1, 1)
-theme_override_font_sizes/font_size = 14
-theme_override_styles/normal = SubResource("StyleBoxFlat_btn_normal")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_btn_pressed")
-theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
-toggle_mode = true
-button_pressed = true
-button_group = SubResource("ButtonGroup_tabs")
-text = "Inventory"
-flat = true
-
-[node name="SkillTreeButton" type="Button" parent="TopBar/TopBarContent/TopBarContainer/TopBarLeft"]
-custom_minimum_size = Vector2(100, 35)
-layout_mode = 2
-theme_override_colors/font_color = Color(0.9, 0.9, 0.9, 1)
-theme_override_colors/font_hover_color = Color(0.2, 0.8, 1, 1)
-theme_override_font_sizes/font_size = 14
-theme_override_styles/normal = SubResource("StyleBoxFlat_btn_normal")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_btn_pressed")
-theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
-toggle_mode = true
-button_group = SubResource("ButtonGroup_tabs")
-text = "Skill Tree"
-flat = true
-
-[node name="ScoutManagerButton" type="Button" parent="TopBar/TopBarContent/TopBarContainer/TopBarLeft"]
-custom_minimum_size = Vector2(100, 35)
-layout_mode = 2
-theme_override_colors/font_color = Color(0.9, 0.9, 0.9, 1)
-theme_override_colors/font_hover_color = Color(0.2, 0.8, 1, 1)
-theme_override_font_sizes/font_size = 14
-theme_override_styles/normal = SubResource("StyleBoxFlat_btn_normal")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_btn_pressed")
-theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
-toggle_mode = true
-button_group = SubResource("ButtonGroup_tabs")
-text = "Scout Manager"
-flat = true
-
-[node name="TopBarCenter" type="CenterContainer" parent="TopBar/TopBarContent/TopBarContainer"]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
-
-[node name="InventoryTitle" type="Label" parent="TopBar/TopBarContent/TopBarContainer/TopBarCenter"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.2, 0.8, 1, 1)
-theme_override_colors/font_outline_color = Color(0, 0, 0, 0.5)
-theme_override_constants/outline_size = 2
-theme_override_font_sizes/font_size = 24
-text = "INVENTORY"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="TopBarRight" type="HBoxContainer" parent="TopBar/TopBarContent/TopBarContainer"]
-layout_mode = 2
-size_flags_vertical = 3
-theme_override_constants/separation = 16
-alignment = 2
-
-[node name="CloseButton" type="Button" parent="TopBar/TopBarContent/TopBarContainer/TopBarRight"]
-custom_minimum_size = Vector2(80, 35)
-layout_mode = 2
-theme_override_colors/font_color = Color(0.9, 0.9, 0.9, 1)
-theme_override_colors/font_hover_color = Color(1, 0.4, 0.4, 1)
-theme_override_font_sizes/font_size = 14
-theme_override_styles/normal = SubResource("StyleBoxFlat_btn_normal")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_btn_pressed")
-theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
-text = "Close"
-flat = true
-
-[node name="BottomBar" type="Panel" parent="."]
-z_index = 10
-anchors_preset = 12
-anchor_top = 1.0
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_top = -55.0
-mouse_filter = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_glass_panel")
-
-[node name="Stage" type="Panel" parent="."]
+[node name="StageMargin" type="MarginContainer" parent="."]
 z_index = -60
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_top = 55.0
-offset_bottom = -55.0
+offset_top = 0.0
+offset_bottom = 0.0
 mouse_filter = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_glass_panel")
+theme_override_constants/margin_left = 0
+theme_override_constants/margin_top = 0
+theme_override_constants/margin_right = 0
+theme_override_constants/margin_bottom = 0
 
-[node name="ScrollContainer" type="ScrollContainer" parent="Stage"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = 20.0
-offset_top = 20.0
-offset_right = -20.0
-offset_bottom = -20.0
-grow_horizontal = 2
-grow_vertical = 2
-horizontal_scroll_mode = 0
-
-[node name="VBoxContainer" type="VBoxContainer" parent="Stage/ScrollContainer"]
+[node name="Stage" type="HBoxContainer" parent="StageMargin"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
-theme_override_constants/separation = 24
+theme_override_constants/separation = 16
 
-[node name="EquippedSection" type="VBoxContainer" parent="Stage/ScrollContainer/VBoxContainer"]
+[node name="EquipColumn" type="PanelContainer" parent="StageMargin/Stage"]
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_equip_panel")
+
+[node name="EquipContent" type="VBoxContainer" parent="StageMargin/Stage/EquipColumn"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_constants/separation = 10
+size_flags_vertical = 3
+theme_override_constants/separation = 12
 
-[node name="EquippedHeader" type="PanelContainer" parent="Stage/ScrollContainer/VBoxContainer/EquippedSection"]
+[node name="EquipHeader" type="PanelContainer" parent="StageMargin/Stage/EquipColumn/EquipContent"]
 custom_minimum_size = Vector2(0, 42)
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_styles/panel = SubResource("StyleBoxFlat_header_clear")
 
-[node name="EquippedHeaderMargin" type="MarginContainer" parent="Stage/ScrollContainer/VBoxContainer/EquippedSection/EquippedHeader"]
+[node name="EquipHeaderMargin" type="MarginContainer" parent="StageMargin/Stage/EquipColumn/EquipContent/EquipHeader"]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/margin_left = 18
@@ -219,38 +137,96 @@ theme_override_constants/margin_top = 8
 theme_override_constants/margin_right = 18
 theme_override_constants/margin_bottom = 8
 
-[node name="EquippedHeaderLabel" type="Label" parent="Stage/ScrollContainer/VBoxContainer/EquippedSection/EquippedHeader/EquippedHeaderMargin"]
+[node name="EquipHeaderLabel" type="Label" parent="StageMargin/Stage/EquipColumn/EquipContent/EquipHeader/EquipHeaderMargin"]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.6, 0.9, 1, 1)
 theme_override_colors/font_outline_color = Color(0, 0, 0, 0.65)
 theme_override_constants/outline_size = 1
 theme_override_font_sizes/font_size = 18
-text = "Equipped"
+text = "Equipment"
 
-[node name="SpecialSlotsContainer" type="HBoxContainer" parent="Stage/ScrollContainer/VBoxContainer/EquippedSection"]
+[node name="WeaponSection" type="VBoxContainer" parent="StageMargin/Stage/EquipColumn/EquipContent"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_constants/separation = 10
+theme_override_constants/separation = 6
 
-[node name="SectionDivider" type="ColorRect" parent="Stage/ScrollContainer/VBoxContainer"]
-custom_minimum_size = Vector2(0, 2)
+[node name="WeaponHeader" type="Label" parent="StageMargin/Stage/EquipColumn/EquipContent/WeaponSection"]
 layout_mode = 2
-color = Color(0.3, 0.5, 0.8, 0.6)
+theme_override_colors/font_color = Color(0.8, 0.3, 0.3, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.65)
+theme_override_constants/outline_size = 1
+theme_override_font_sizes/font_size = 14
+text = "Weapons"
 
-[node name="BackpackSection" type="VBoxContainer" parent="Stage/ScrollContainer/VBoxContainer"]
+[node name="WeaponContainer" type="HBoxContainer" parent="StageMargin/Stage/EquipColumn/EquipContent/WeaponSection"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 8
+alignment = 1
+
+[node name="PassiveSection" type="VBoxContainer" parent="StageMargin/Stage/EquipColumn/EquipContent"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 6
+
+[node name="PassiveHeader" type="Label" parent="StageMargin/Stage/EquipColumn/EquipContent/PassiveSection"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.3, 0.7, 0.4, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.65)
+theme_override_constants/outline_size = 1
+theme_override_font_sizes/font_size = 14
+text = "Passives"
+
+[node name="PassiveContainer" type="HBoxContainer" parent="StageMargin/Stage/EquipColumn/EquipContent/PassiveSection"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 8
+alignment = 1
+
+[node name="ConsumableSection" type="VBoxContainer" parent="StageMargin/Stage/EquipColumn/EquipContent"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 6
+
+[node name="ConsumableHeader" type="Label" parent="StageMargin/Stage/EquipColumn/EquipContent/ConsumableSection"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.8, 0.6, 0.3, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.65)
+theme_override_constants/outline_size = 1
+theme_override_font_sizes/font_size = 14
+text = "Consumables"
+
+[node name="ConsumableContainer" type="HBoxContainer" parent="StageMargin/Stage/EquipColumn/EquipContent/ConsumableSection"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 8
+alignment = 1
+
+[node name="CargoColumn" type="PanelContainer" parent="StageMargin/Stage"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
-theme_override_constants/separation = 10
+theme_override_styles/panel = SubResource("StyleBoxFlat_cargo_panel")
 
-[node name="BackpackHeader" type="PanelContainer" parent="Stage/ScrollContainer/VBoxContainer/BackpackSection"]
+[node name="CargoContent" type="VBoxContainer" parent="StageMargin/Stage/CargoColumn"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 12
+
+[node name="CargoHeader" type="VBoxContainer" parent="StageMargin/Stage/CargoColumn/CargoContent"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 8
+
+[node name="CargoTitle" type="PanelContainer" parent="StageMargin/Stage/CargoColumn/CargoContent/CargoHeader"]
 custom_minimum_size = Vector2(0, 42)
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_styles/panel = SubResource("StyleBoxFlat_header_clear")
 
-[node name="BackpackHeaderMargin" type="MarginContainer" parent="Stage/ScrollContainer/VBoxContainer/BackpackSection/BackpackHeader"]
+[node name="CargoTitleMargin" type="MarginContainer" parent="StageMargin/Stage/CargoColumn/CargoContent/CargoHeader/CargoTitle"]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/margin_left = 18
@@ -258,7 +234,7 @@ theme_override_constants/margin_top = 8
 theme_override_constants/margin_right = 18
 theme_override_constants/margin_bottom = 8
 
-[node name="BackpackHeaderLabel" type="Label" parent="Stage/ScrollContainer/VBoxContainer/BackpackSection/BackpackHeader/BackpackHeaderMargin"]
+[node name="CargoTitleLabel" type="Label" parent="StageMargin/Stage/CargoColumn/CargoContent/CargoHeader/CargoTitle/CargoTitleMargin"]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.6, 0.9, 1, 1)
@@ -267,20 +243,183 @@ theme_override_constants/outline_size = 1
 theme_override_font_sizes/font_size = 18
 text = "Cargo"
 
-[node name="InventoryContainer" type="PanelContainer" parent="Stage/ScrollContainer/VBoxContainer/BackpackSection"]
+[node name="FilterButtons" type="HBoxContainer" parent="StageMargin/Stage/CargoColumn/CargoContent/CargoHeader"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 4
+
+[node name="AllButton" type="Button" parent="StageMargin/Stage/CargoColumn/CargoContent/CargoHeader/FilterButtons"]
+layout_mode = 2
+custom_minimum_size = Vector2(60, 28)
+theme_override_colors/font_color = Color(0.6, 0.9, 1, 1)
+theme_override_font_sizes/font_size = 12
+text = "All"
+toggle_mode = true
+button_pressed = true
+
+[node name="WeaponButton" type="Button" parent="StageMargin/Stage/CargoColumn/CargoContent/CargoHeader/FilterButtons"]
+layout_mode = 2
+custom_minimum_size = Vector2(70, 28)
+theme_override_colors/font_color = Color(0.8, 0.3, 0.3, 1)
+theme_override_font_sizes/font_size = 12
+text = "Weapons"
+toggle_mode = true
+
+[node name="PassiveButton" type="Button" parent="StageMargin/Stage/CargoColumn/CargoContent/CargoHeader/FilterButtons"]
+layout_mode = 2
+custom_minimum_size = Vector2(65, 28)
+theme_override_colors/font_color = Color(0.3, 0.7, 0.4, 1)
+theme_override_font_sizes/font_size = 12
+text = "Passives"
+toggle_mode = true
+
+[node name="ConsumableButton" type="Button" parent="StageMargin/Stage/CargoColumn/CargoContent/CargoHeader/FilterButtons"]
+layout_mode = 2
+custom_minimum_size = Vector2(80, 28)
+theme_override_colors/font_color = Color(0.8, 0.6, 0.3, 1)
+theme_override_font_sizes/font_size = 12
+text = "Consumables"
+toggle_mode = true
+
+[node name="ScrollContainer" type="ScrollContainer" parent="StageMargin/Stage/CargoColumn/CargoContent"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+vertical_scroll_mode = 1
+theme_override_styles/scroll = SubResource("TransparentStyle")
+theme_override_styles/scroll_focus = SubResource("TransparentStyle")
+
+[node name="InventoryContainer" type="MarginContainer" parent="StageMargin/Stage/CargoColumn/CargoContent/ScrollContainer"]
 custom_minimum_size = Vector2(0, 200)
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
-theme_override_styles/panel = SubResource("StyleBoxFlat_slot")
 
-[node name="GridContainer" type="GridContainer" parent="Stage/ScrollContainer/VBoxContainer/BackpackSection/InventoryContainer"]
+[node name="GridContainer" type="GridContainer" parent="StageMargin/Stage/CargoColumn/CargoContent/ScrollContainer/InventoryContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
-size_flags_vertical = 3
-theme_override_constants/h_separation = 10
-theme_override_constants/v_separation = 10
-columns = 6
+size_flags_vertical = 0
+theme_override_constants/h_separation = 8
+theme_override_constants/v_separation = 8
+columns = 12
 
-[node name="ItemSlot" parent="Stage/ScrollContainer/VBoxContainer/BackpackSection/InventoryContainer/GridContainer" instance=ExtResource("3_l5txx")]
-layout_mode = 2
+[node name="ItemSlot" parent="StageMargin/Stage/CargoColumn/CargoContent/ScrollContainer/InventoryContainer/GridContainer" instance=ExtResource("3_l5txx")]
+
+[node name="ItemSlot2" parent="StageMargin/Stage/CargoColumn/CargoContent/ScrollContainer/InventoryContainer/GridContainer" instance=ExtResource("3_l5txx")]
+
+[node name="ItemSlot3" parent="StageMargin/Stage/CargoColumn/CargoContent/ScrollContainer/InventoryContainer/GridContainer" instance=ExtResource("3_l5txx")]
+
+[node name="ItemSlot4" parent="StageMargin/Stage/CargoColumn/CargoContent/ScrollContainer/InventoryContainer/GridContainer" instance=ExtResource("3_l5txx")]
+
+[node name="ItemSlot5" parent="StageMargin/Stage/CargoColumn/CargoContent/ScrollContainer/InventoryContainer/GridContainer" instance=ExtResource("3_l5txx")]
+
+[node name="ItemSlot6" parent="StageMargin/Stage/CargoColumn/CargoContent/ScrollContainer/InventoryContainer/GridContainer" instance=ExtResource("3_l5txx")]
+
+[node name="ItemSlot7" parent="StageMargin/Stage/CargoColumn/CargoContent/ScrollContainer/InventoryContainer/GridContainer" instance=ExtResource("3_l5txx")]
+
+[node name="ItemSlot8" parent="StageMargin/Stage/CargoColumn/CargoContent/ScrollContainer/InventoryContainer/GridContainer" instance=ExtResource("3_l5txx")]
+
+[node name="ItemSlot9" parent="StageMargin/Stage/CargoColumn/CargoContent/ScrollContainer/InventoryContainer/GridContainer" instance=ExtResource("3_l5txx")]
+
+[node name="ItemSlot10" parent="StageMargin/Stage/CargoColumn/CargoContent/ScrollContainer/InventoryContainer/GridContainer" instance=ExtResource("3_l5txx")]
+
+[node name="ItemSlot11" parent="StageMargin/Stage/CargoColumn/CargoContent/ScrollContainer/InventoryContainer/GridContainer" instance=ExtResource("3_l5txx")]
+
+[node name="ItemSlot12" parent="StageMargin/Stage/CargoColumn/CargoContent/ScrollContainer/InventoryContainer/GridContainer" instance=ExtResource("3_l5txx")]
+
+[node name="ItemSlot13" parent="StageMargin/Stage/CargoColumn/CargoContent/ScrollContainer/InventoryContainer/GridContainer" instance=ExtResource("3_l5txx")]
+
+[node name="ItemSlot14" parent="StageMargin/Stage/CargoColumn/CargoContent/ScrollContainer/InventoryContainer/GridContainer" instance=ExtResource("3_l5txx")]
+
+[node name="ItemSlot15" parent="StageMargin/Stage/CargoColumn/CargoContent/ScrollContainer/InventoryContainer/GridContainer" instance=ExtResource("3_l5txx")]
+
+[node name="ItemSlot16" parent="StageMargin/Stage/CargoColumn/CargoContent/ScrollContainer/InventoryContainer/GridContainer" instance=ExtResource("3_l5txx")]
+
+[node name="ItemSlot17" parent="StageMargin/Stage/CargoColumn/CargoContent/ScrollContainer/InventoryContainer/GridContainer" instance=ExtResource("3_l5txx")]
+
+[node name="ItemSlot18" parent="StageMargin/Stage/CargoColumn/CargoContent/ScrollContainer/InventoryContainer/GridContainer" instance=ExtResource("3_l5txx")]
+
+[node name="ItemSlot19" parent="StageMargin/Stage/CargoColumn/CargoContent/ScrollContainer/InventoryContainer/GridContainer" instance=ExtResource("3_l5txx")]
+
+[node name="ItemSlot20" parent="StageMargin/Stage/CargoColumn/CargoContent/ScrollContainer/InventoryContainer/GridContainer" instance=ExtResource("3_l5txx")]
+
+[node name="ItemSlot21" parent="StageMargin/Stage/CargoColumn/CargoContent/ScrollContainer/InventoryContainer/GridContainer" instance=ExtResource("3_l5txx")]
+
+[node name="ItemSlot22" parent="StageMargin/Stage/CargoColumn/CargoContent/ScrollContainer/InventoryContainer/GridContainer" instance=ExtResource("3_l5txx")]
+
+[node name="ItemSlot23" parent="StageMargin/Stage/CargoColumn/CargoContent/ScrollContainer/InventoryContainer/GridContainer" instance=ExtResource("3_l5txx")]
+
+[node name="ItemSlot24" parent="StageMargin/Stage/CargoColumn/CargoContent/ScrollContainer/InventoryContainer/GridContainer" instance=ExtResource("3_l5txx")]
+
+[node name="ItemSlot25" parent="StageMargin/Stage/CargoColumn/CargoContent/ScrollContainer/InventoryContainer/GridContainer" instance=ExtResource("3_l5txx")]
+
+[node name="ItemSlot26" parent="StageMargin/Stage/CargoColumn/CargoContent/ScrollContainer/InventoryContainer/GridContainer" instance=ExtResource("3_l5txx")]
+
+[node name="ItemSlot27" parent="StageMargin/Stage/CargoColumn/CargoContent/ScrollContainer/InventoryContainer/GridContainer" instance=ExtResource("3_l5txx")]
+
+[node name="ItemSlot28" parent="StageMargin/Stage/CargoColumn/CargoContent/ScrollContainer/InventoryContainer/GridContainer" instance=ExtResource("3_l5txx")]
+
+[node name="ItemSlot29" parent="StageMargin/Stage/CargoColumn/CargoContent/ScrollContainer/InventoryContainer/GridContainer" instance=ExtResource("3_l5txx")]
+
+[node name="ItemSlot30" parent="StageMargin/Stage/CargoColumn/CargoContent/ScrollContainer/InventoryContainer/GridContainer" instance=ExtResource("3_l5txx")]
+
+[node name="ItemSlot31" parent="StageMargin/Stage/CargoColumn/CargoContent/ScrollContainer/InventoryContainer/GridContainer" instance=ExtResource("3_l5txx")]
+
+[node name="ItemSlot32" parent="StageMargin/Stage/CargoColumn/CargoContent/ScrollContainer/InventoryContainer/GridContainer" instance=ExtResource("3_l5txx")]
+
+[node name="ItemSlot33" parent="StageMargin/Stage/CargoColumn/CargoContent/ScrollContainer/InventoryContainer/GridContainer" instance=ExtResource("3_l5txx")]
+
+[node name="ItemSlot34" parent="StageMargin/Stage/CargoColumn/CargoContent/ScrollContainer/InventoryContainer/GridContainer" instance=ExtResource("3_l5txx")]
+
+[node name="ItemSlot35" parent="StageMargin/Stage/CargoColumn/CargoContent/ScrollContainer/InventoryContainer/GridContainer" instance=ExtResource("3_l5txx")]
+
+[node name="ItemSlot36" parent="StageMargin/Stage/CargoColumn/CargoContent/ScrollContainer/InventoryContainer/GridContainer" instance=ExtResource("3_l5txx")]
+
+[node name="ItemSlot37" parent="StageMargin/Stage/CargoColumn/CargoContent/ScrollContainer/InventoryContainer/GridContainer" instance=ExtResource("3_l5txx")]
+
+[node name="ItemSlot38" parent="StageMargin/Stage/CargoColumn/CargoContent/ScrollContainer/InventoryContainer/GridContainer" instance=ExtResource("3_l5txx")]
+
+[node name="ItemSlot39" parent="StageMargin/Stage/CargoColumn/CargoContent/ScrollContainer/InventoryContainer/GridContainer" instance=ExtResource("3_l5txx")]
+
+[node name="ItemSlot40" parent="StageMargin/Stage/CargoColumn/CargoContent/ScrollContainer/InventoryContainer/GridContainer" instance=ExtResource("3_l5txx")]
+
+[node name="ItemSlot41" parent="StageMargin/Stage/CargoColumn/CargoContent/ScrollContainer/InventoryContainer/GridContainer" instance=ExtResource("3_l5txx")]
+
+[node name="ItemSlot42" parent="StageMargin/Stage/CargoColumn/CargoContent/ScrollContainer/InventoryContainer/GridContainer" instance=ExtResource("3_l5txx")]
+
+[node name="ItemSlot43" parent="StageMargin/Stage/CargoColumn/CargoContent/ScrollContainer/InventoryContainer/GridContainer" instance=ExtResource("3_l5txx")]
+
+[node name="ItemSlot44" parent="StageMargin/Stage/CargoColumn/CargoContent/ScrollContainer/InventoryContainer/GridContainer" instance=ExtResource("3_l5txx")]
+
+[node name="ItemSlot45" parent="StageMargin/Stage/CargoColumn/CargoContent/ScrollContainer/InventoryContainer/GridContainer" instance=ExtResource("3_l5txx")]
+
+[node name="ItemSlot46" parent="StageMargin/Stage/CargoColumn/CargoContent/ScrollContainer/InventoryContainer/GridContainer" instance=ExtResource("3_l5txx")]
+
+[node name="ItemSlot47" parent="StageMargin/Stage/CargoColumn/CargoContent/ScrollContainer/InventoryContainer/GridContainer" instance=ExtResource("3_l5txx")]
+
+[node name="ItemSlot48" parent="StageMargin/Stage/CargoColumn/CargoContent/ScrollContainer/InventoryContainer/GridContainer" instance=ExtResource("3_l5txx")]
+
+[node name="ItemSlot49" parent="StageMargin/Stage/CargoColumn/CargoContent/ScrollContainer/InventoryContainer/GridContainer" instance=ExtResource("3_l5txx")]
+
+[node name="ItemSlot50" parent="StageMargin/Stage/CargoColumn/CargoContent/ScrollContainer/InventoryContainer/GridContainer" instance=ExtResource("3_l5txx")]
+
+[node name="ItemSlot51" parent="StageMargin/Stage/CargoColumn/CargoContent/ScrollContainer/InventoryContainer/GridContainer" instance=ExtResource("3_l5txx")]
+
+[node name="ItemSlot52" parent="StageMargin/Stage/CargoColumn/CargoContent/ScrollContainer/InventoryContainer/GridContainer" instance=ExtResource("3_l5txx")]
+
+[node name="ItemSlot53" parent="StageMargin/Stage/CargoColumn/CargoContent/ScrollContainer/InventoryContainer/GridContainer" instance=ExtResource("3_l5txx")]
+
+[node name="ItemSlot54" parent="StageMargin/Stage/CargoColumn/CargoContent/ScrollContainer/InventoryContainer/GridContainer" instance=ExtResource("3_l5txx")]
+
+[node name="ItemSlot55" parent="StageMargin/Stage/CargoColumn/CargoContent/ScrollContainer/InventoryContainer/GridContainer" instance=ExtResource("3_l5txx")]
+
+[node name="ItemSlot56" parent="StageMargin/Stage/CargoColumn/CargoContent/ScrollContainer/InventoryContainer/GridContainer" instance=ExtResource("3_l5txx")]
+
+[node name="ItemSlot57" parent="StageMargin/Stage/CargoColumn/CargoContent/ScrollContainer/InventoryContainer/GridContainer" instance=ExtResource("3_l5txx")]
+
+[node name="ItemSlot58" parent="StageMargin/Stage/CargoColumn/CargoContent/ScrollContainer/InventoryContainer/GridContainer" instance=ExtResource("3_l5txx")]
+
+[node name="ItemSlot59" parent="StageMargin/Stage/CargoColumn/CargoContent/ScrollContainer/InventoryContainer/GridContainer" instance=ExtResource("3_l5txx")]
+
+[node name="ItemSlot60" parent="StageMargin/Stage/CargoColumn/CargoContent/ScrollContainer/InventoryContainer/GridContainer" instance=ExtResource("3_l5txx")]

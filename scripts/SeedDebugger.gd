@@ -122,10 +122,10 @@ func _test_dimension_travel():
 	
 	print("\nTesting world types with different seeds...")
 	var test_seeds = [0, 12345, 54321, 99999, -12345]
-	for seed in test_seeds:
-		var prob = dimension_travel._calculate_mimic_probability(seed)
-		var type = dimension_travel._determine_world_type(prob)
-		var type_name = dimension_travel._get_world_type_name_for_seed(seed)
-		print("Seed ", seed, ": ", type_name, " (", prob * 100, "% mimics)")
+	for seed_val in test_seeds:
+		var prob = dimension_travel._calculate_mimic_probability(seed_val)
+		var _type = dimension_travel._determine_world_type(prob)
+		var type_name = dimension_travel._get_world_type_name_for_seed(seed_val)
+		print("Seed ", seed_val, ": ", type_name, " (", prob * 100, "% mimics)")
 	
 	print("\n=== Dimension Travel Test Complete ===")

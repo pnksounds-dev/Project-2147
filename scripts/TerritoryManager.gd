@@ -10,9 +10,11 @@ signal territory_captured(territory_id: String, new_faction: String)
 
 var faction_manager: FactionManager
 var chunk_size: Vector2 = Vector2(1000, 1000)  # Each chunk is 1000x1000 units
+const PLAYER_TERRITORY_RADIUS_CHUNKS: int = 13
 
 # Territory data structure
 var territories: Array[Dictionary] = []
+var chunk_territories: Dictionary = {}
 
 func _ready() -> void:
 	add_to_group("territory_manager")
@@ -25,6 +27,13 @@ func _ready() -> void:
 	if not faction_manager:
 		push_error("TerritoryManager: FactionManager not found!")
 		return
+	
+	# Sync chunk size with ChunkManager if available
+	var chunk_manager = get_tree().get_first_node_in_group("chunk_manager")
+	if chunk_manager and chunk_manager.has_method("get_debug_info"):
+		var debug_info = chunk_manager.get_debug_info()
+		if debug_info.has("chunk_size"):
+			chunk_size = debug_info["chunk_size"]
 	
 	_initialize_default_territories()
 	
@@ -39,56 +48,46 @@ func _on_territory_entered(territory_id: String, faction: String) -> void:
 func _initialize_default_territories() -> void:
 	# Clear existing territories
 	territories.clear()
+	chunk_territories.clear()
 	
-	# Player faction hub at (0,0) - large safe zone
-	territories.append({
-		"id": "player_hub",
-		"faction": FactionManager.FACTION_PLAYER,
-		"center": Vector2.ZERO,
-		"radius": 3000.0,  # 3km radius safe zone
-		"color": faction_manager.get_faction_color(FactionManager.FACTION_PLAYER),
-		"spawn_weights": {
-			"scout": 1.0    # Player faction only spawns scouts for now
-		},
-		"threat_level": 0
-	})
+	# Define a 5x5 chunk territory area around the Ark/home position (centered at world origin)
+	var center_position = Vector2.ZERO
+	var center_chunk = get_chunk_coordinates(center_position)
+	var half_size = chunk_size * 0.5
 	
-	# Add some surrounding unclaimed territories
-	var surrounding_positions = [
-		Vector2(5000, 0),    # East
-		Vector2(-5000, 0),   # West  
-		Vector2(0, 5000),    # North
-		Vector2(0, -5000),   # South
-		Vector2(3500, 3500), # NE
-		Vector2(-3500, 3500), # NW
-		Vector2(3500, -3500), # SE
-		Vector2(-3500, -3500) # SW
-	]
-	
-	for i in range(surrounding_positions.size()):
-		var pos = surrounding_positions[i]
-		territories.append({
-			"id": "territory_" + str(i),
-			"faction": FactionManager.FACTION_NEUTRAL,
-			"center": pos,
-			"radius": 2000.0,  # 2km radius
-			"color": faction_manager.get_faction_color(FactionManager.FACTION_NEUTRAL),
-			"spawn_weights": {
-				"mimic": 0.5,
-				"drone": 0.3,
-				"scout": 0.2
-			},
-			"threat_level": 1
-		})
+	for x in range(-PLAYER_TERRITORY_RADIUS_CHUNKS, PLAYER_TERRITORY_RADIUS_CHUNKS + 1):
+		for y in range(-PLAYER_TERRITORY_RADIUS_CHUNKS, PLAYER_TERRITORY_RADIUS_CHUNKS + 1):
+			var chunk_coords = center_chunk + Vector2i(x, y)
+			var center = Vector2(
+				chunk_coords.x * chunk_size.x + half_size.x,
+				chunk_coords.y * chunk_size.y + half_size.y
+			)
+			
+			var territory_id = "player_hub_%d_%d" % [chunk_coords.x, chunk_coords.y]
+			var territory = {
+				"id": territory_id,
+				"faction": FactionManager.FACTION_PLAYER,
+				"chunk_coords": chunk_coords,
+				"center": center,
+				"radius": max(chunk_size.x, chunk_size.y) * 0.5,
+				"color": faction_manager.get_faction_color(FactionManager.FACTION_PLAYER),
+				"spawn_weights": {
+					"scout": 1.0    # Player faction only spawns scouts for now
+				},
+				"threat_level": 0
+			}
+			
+			territories.append(territory)
+			chunk_territories[chunk_coords] = territory
 	
 	print("TerritoryManager: Initialized ", territories.size(), " territories")
 
 func get_territory_at_position(pos: Vector2) -> Dictionary:
-	for territory in territories:
-		var distance = pos.distance_to(territory["center"])
-		if distance <= territory["radius"]:
-			return territory
-	return {}  # No territory found
+	var chunk_coords = get_chunk_coordinates(pos)
+	return get_territory_at_chunk(chunk_coords)
+
+func get_territory_at_chunk(chunk_coords: Vector2i) -> Dictionary:
+	return chunk_territories.get(chunk_coords, {})
 
 func get_faction_at_position(pos: Vector2) -> String:
 	var territory = get_territory_at_position(pos)

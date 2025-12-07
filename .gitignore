@@ -1,0 +1,30 @@
+# Godot editor metadata and import cache
+/.godot/
+/.import/
+*.import
+*.uid
+
+# Generated or heavy runtime data
+/logs/
+/PlayerData/
+Docs/
+
+# Local engine binaries and tools
+/exe/Godot_v*
+
+# OS-generated files
+.DS_Store
+Thumbs.db
+
+# Temporary or backup files
+*.tmp
+*.temp
+*.bak
+*.old
+*~
+
+# IDE caches
+/.idea/
+
+# Assets folder (images, audio, and other media files)
+assets/

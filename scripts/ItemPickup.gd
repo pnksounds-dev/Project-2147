@@ -51,6 +51,22 @@ func load_item(item_identifier: String):
 		registry = preload("res://scripts/ItemRegistry.gd").new()
 	
 	item_data = registry.get_item(item_id)
+	
+	# Fallback to ItemDatabase if not found in Registry
+	if not item_data:
+		var item_db = get_tree().get_first_node_in_group("item_database")
+		if item_db and item_db.has_method("get_item"):
+			var db_data = item_db.get_item(item_id)
+			if not db_data.is_empty():
+				# Create a mock ItemData object for compatibility
+				item_data = ItemData.new()
+				item_data.name = db_data.get("name", "Unknown Item")
+				item_data.asset_path = db_data.get("icon_path", "")
+				if item_data.asset_path == "":
+					item_data.asset_path = db_data.get("asset_path", "")
+				item_data.type = db_data.get("category", "Misc")
+				item_data.description = db_data.get("description", "")
+				
 	if not item_data:
 		print("ItemPickup: Item not found: ", item_id)
 		return

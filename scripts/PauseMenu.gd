@@ -2,9 +2,6 @@ extends CanvasLayer
 
 class_name PauseMenu
 
-# Import AudioManager class with non-shadowing name
-const AudioManagerClass = preload("res://scripts/AudioManager.gd")
-
 signal resume_requested
 signal settings_requested
 signal quit_requested
@@ -17,12 +14,13 @@ signal stellarium_requested
 @onready var _resume_button: Button = $Stage/VBoxContainer/ResumeButton
 @onready var _settings_button: Button = $Stage/VBoxContainer/SettingsButton
 @onready var _inventory_button: Button = $Stage/VBoxContainer/InventoryButton
+@onready var _debug_button: Button = $Stage/VBoxContainer/DebugButton
 @onready var _bestiary_button: Button = $Stage/VBoxContainer/BestiaryButton
 @onready var _stellarium_button: Button = $Stage/VBoxContainer/StellariumButton
 @onready var _quit_button: Button = $Stage/VBoxContainer/QuitButton
 
 # Audio manager reference
-@onready var audio_manager: AudioManagerClass = get_node_or_null("/root/AudioManager")
+@onready var audio_manager: AudioManager = get_node_or_null("/root/AudioManager")
 
 var is_paused: bool = false
 
@@ -36,6 +34,7 @@ func _ready() -> void:
 	_resume_button.pressed.connect(_on_resume_pressed)
 	_settings_button.pressed.connect(_on_settings_pressed)
 	_inventory_button.pressed.connect(_on_inventory_pressed)
+	_debug_button.pressed.connect(_on_debug_pressed)
 	_bestiary_button.pressed.connect(_on_bestiary_pressed)
 	_stellarium_button.pressed.connect(_on_stellarium_pressed)
 	_quit_button.pressed.connect(_on_quit_pressed)
@@ -45,9 +44,31 @@ func _input(event: InputEvent) -> void:
 	var inventory_ui = get_tree().get_first_node_in_group("inventory_ui")
 	if inventory_ui and inventory_ui.visible:
 		return
+	
+	# Don't process input if trading panel is open
+	var trading_panel = get_tree().get_first_node_in_group("trading_panel")
+	if trading_panel and trading_panel.visible:
+		return
+	
+	# Don't process input if map is open
+	var radar_hud = get_tree().get_first_node_in_group("radar_hud")
+	if radar_hud and radar_hud._map_visible:
+		return
 		
 	if event.is_action_pressed("ui_cancel"): # ESC
 		toggle_pause()
+		get_viewport().set_input_as_handled()
+		return
+	
+	# F1 toggles visibility of the Debug button (debug entrypoint) in pause menu
+	if event is InputEventKey and event.pressed and event.keycode == KEY_F1:
+		if _debug_button:
+			_debug_button.visible = not _debug_button.visible
+			# If hiding the button while debug menu is open, also hide the menu
+			if not _debug_button.visible:
+				var debug_menu = get_tree().get_first_node_in_group("debug_menu")
+				if debug_menu and debug_menu.has_method("toggle_menu") and debug_menu.debug_visible:
+					debug_menu.toggle_menu()
 		get_viewport().set_input_as_handled()
 
 func toggle_pause() -> void:
@@ -61,6 +82,10 @@ func toggle_pause() -> void:
 	else:
 		_show_hud()
 		_settings_panel.visible = false
+		# Ensure any DebugMenu overlay is hidden when leaving pause
+		var debug_menu = get_tree().get_first_node_in_group("debug_menu")
+		if debug_menu and debug_menu.has_method("toggle_menu") and debug_menu.debug_visible:
+			debug_menu.toggle_menu()
 
 func _show_main_menu() -> void:
 	_button_container.visible = true
@@ -87,6 +112,14 @@ func _on_inventory_pressed() -> void:
 	visible = false
 	# Request inventory to open (Main.gd will handle it)
 	inventory_requested.emit()
+
+func _on_debug_pressed() -> void:
+	if audio_manager:
+		audio_manager.play_button_click()
+	# Toggle DebugMenu overlay while keeping pause menu chrome visible
+	var debug_menu = get_tree().get_first_node_in_group("debug_menu")
+	if debug_menu and debug_menu.has_method("toggle_menu"):
+		debug_menu.toggle_menu()
 
 func _on_bestiary_pressed() -> void:
 	if audio_manager:
@@ -148,7 +181,7 @@ func _get_current_ship_name() -> String:
 			var result = game_state.get_selected_ship_name()
 			if typeof(result) == TYPE_STRING and not result.is_empty():
 				return result
-		if game_state.has("selected_ship"):
+		if "selected_ship" in game_state:
 			var ship_id = str(game_state.get("selected_ship"))
 			if not ship_id.is_empty():
 				ship_name = ship_id
@@ -174,7 +207,8 @@ func _hide_hud() -> void:
 	# BUT don't hide inventory if it's already open (user might have opened it with E key)
 	var inventory_ui = get_tree().get_first_node_in_group("inventory_ui")
 	if inventory_ui and not inventory_ui.tracked_visible:
-		inventory_ui._set_visible(false, "PauseMenu._hide_hud")
+		# Don't force hide inventory - let it manage its own visibility
+		pass
 
 func _show_hud() -> void:
 	# Show all HUD elements

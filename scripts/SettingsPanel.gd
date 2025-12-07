@@ -2,13 +2,10 @@ extends Control
 
 class_name SettingsPanel
 
-# Import AudioManager class with non-shadowing name
-const AudioManagerClass = preload("res://scripts/AudioManager.gd")
-
 signal back_requested
 
 # Audio manager reference
-var audio_manager: AudioManagerClass = null
+var audio_manager: AudioManager = null
 
 # Audio controls
 var _master_slider: HSlider
@@ -17,6 +14,12 @@ var _music_slider: HSlider
 var _music_value: Label
 var _sfx_slider: HSlider
 var _sfx_value: Label
+
+# Audio bus references
+var _master_bus: int = -1
+var _music_bus: int = -1
+var _sfx_bus: int = -1
+var _ui_bus: int = -1
 
 # Graphics controls
 var _ultra_hd_check: CheckBox
@@ -104,6 +107,9 @@ func _ready() -> void:
 	_initialize_audio_settings()
 	_initialize_graphics_settings()
 	_initialize_gameplay_settings()
+	
+	# Apply consistent theme for visual parity with other panels
+	_apply_consistent_theme()
 
 func _connect_audio_signals():
 	if _master_slider:
@@ -144,6 +150,16 @@ func _connect_graphics_signals():
 func _connect_gameplay_signals():
 	if _difficulty_option:
 		_difficulty_option.item_selected.connect(_on_difficulty_changed)
+
+func _apply_consistent_theme():
+	"""Apply consistent theme using ThemeManager for visual parity with other panels"""
+	# Apply main panel styling
+	ThemeManager.apply_consistent_theme_to_panel(self)
+	
+	# Apply title styling to the main title label
+	var title_label = get_node_or_null("ScrollContainer/VBoxContainer/Title")
+	if title_label:
+		ThemeManager.apply_title_style(title_label)
 
 func _initialize_audio_settings():
 	# Ensure audio buses exist before trying to access them
@@ -192,27 +208,68 @@ func _initialize_audio_settings():
 	_update_volume_labels()
 
 func _ensure_audio_buses_exist():
-	# Create audio buses if they don't exist
-	var master_bus = AudioServer.get_bus_index("Master")
-	var music_bus = AudioServer.get_bus_index("Music")
-	var sfx_bus = AudioServer.get_bus_index("SFX")
+	"""Enhanced audio bus fallback logic with better error handling and integration"""
+	# Get or create audio buses using improved fallback system
+	_ensure_audio_buses()
 	
-	# Master bus should always exist (index 0)
-	if master_bus < 0:
-		AudioServer.add_bus()
-		AudioServer.set_bus_name(0, "Master")
+	# Connect fallback buses to actual audio system
+	_connect_audio_buses_to_game()
+
+func _ensure_audio_buses():
+	"""Get or create audio buses with proper fallback logic"""
+	# Get or create Master bus
+	_master_bus = _get_or_create_bus("Master", 0)
 	
-	# Create Music bus if it doesn't exist
-	if music_bus < 0:
-		AudioServer.add_bus()
-		music_bus = AudioServer.get_bus_count() - 1
-		AudioServer.set_bus_name(music_bus, "Music")
+	# Get or create other buses
+	_music_bus = _get_or_create_bus("Music", 1)
+	_sfx_bus = _get_or_create_bus("SFX", 2)
+	_ui_bus = _get_or_create_bus("UI", 3)
+
+func _get_or_create_bus(bus_name: String, index: int) -> int:
+	"""Get existing audio bus or create fallback with proper error handling"""
+	var bus = AudioServer.get_bus_index(bus_name)
+	if bus == -1:
+		AudioServer.add_bus(index)  # add_bus() returns void, not the index
+		bus = index  # Use the index we specified when adding
+		AudioServer.set_bus_name(bus, bus_name)
+		
+		# Set default volume for new bus
+		AudioServer.set_bus_volume_db(bus, linear_to_db(1.0))
+		AudioServer.set_bus_mute(bus, false)
+		
+		push_warning("Created fallback audio bus: %s at index %d" % [bus_name, bus])
+		
+		# Log additional debug info
+		print("Audio bus fallback created - Bus: %s, Index: %d, Total buses: %d" % [
+			bus_name, bus, AudioServer.get_bus_count()
+		])
+	return bus
+
+func _connect_audio_buses_to_game():
+	"""Connect fallback buses to actual game audio system"""
+	# Ensure AudioManager is aware of the audio buses
+	if audio_manager:
+		if audio_manager.has_method("refresh_audio_buses"):
+			audio_manager.refresh_audio_buses()
+		elif audio_manager.has_method("initialize_audio"):
+			audio_manager.initialize_audio()
 	
-	# Create SFX bus if it doesn't exist
-	if sfx_bus < 0:
-		AudioServer.add_bus()
-		sfx_bus = AudioServer.get_bus_count() - 1
-		AudioServer.set_bus_name(sfx_bus, "SFX")
+	# Verify audio bus connectivity
+	_verify_audio_bus_connectivity()
+
+func _verify_audio_bus_connectivity():
+	"""Verify that audio buses are properly connected and functional"""
+	var bus_names = ["Master", "Music", "SFX", "UI"]
+	for bus_name in bus_names:
+		var bus_index = AudioServer.get_bus_index(bus_name)
+		if bus_index >= 0:
+			var volume = AudioServer.get_bus_volume_db(bus_index)
+			var mute = AudioServer.is_bus_mute(bus_index)
+			print("Audio bus '%s' (index %d): Volume=%.1fdB, Muted=%s" % [
+				bus_name, bus_index, volume, mute
+			])
+		else:
+			push_error("Failed to create or find audio bus: %s" % bus_name)
 
 func _initialize_graphics_settings():
 	# Store original values
@@ -517,25 +574,188 @@ func _on_difficulty_changed(index: int) -> void:
 
 # Button callbacks
 func _on_apply_pressed() -> void:
+	print("DEBUG: Apply button pressed")
 	if audio_manager:
 		audio_manager.play_button_click()
+	
+	# Debug: Check UI scale slider state
+	if _ui_scale_slider:
+		print("DEBUG: UI scale slider value: ", _ui_scale_slider.value)
+		print("DEBUG: UI scale slider valid: ", _ui_scale_slider.value >= 0.5 and _ui_scale_slider.value <= 2.0)
+	else:
+		print("DEBUG: UI scale slider is null")
+	
+	# Validate settings before applying
+	print("DEBUG: Starting settings validation...")
+	if not _validate_all_settings():
+		print("DEBUG: Settings validation failed - returning early")
+		return
+	
+	print("DEBUG: Settings validation passed - applying settings")
 	# Save settings (in a real game, you'd save to a config file)
 	print("SettingsPanel: Settings applied and saved")
 	
-	# Save FOV settings to player
+	# Save settings to player
 	var player = get_tree().get_first_node_in_group("player")
 	if player and player.has_method("set_fov_range"):
 		player.set_fov_range(_fov_min, _fov_max)
 	
 	# Apply resolution and UI scale
 	if _pending_resolution != Vector2i.ZERO:
+		print("DEBUG: Applying resolution: ", _pending_resolution)
 		DisplayServer.window_set_size(_pending_resolution)
 	var root = get_tree().root
 	if root:
+		print("DEBUG: Applying UI scale: ", _pending_ui_scale)
 		root.content_scale_factor = _pending_ui_scale
 	
 	_settings_changed = false
 	_apply_button.modulate = Color.WHITE  # Reset button color
+
+func _validate_all_settings() -> bool:
+	"""Validate all settings before applying them"""
+	var graphics_valid = _validate_graphics_settings()
+	var audio_valid = _validate_audio_settings()
+	var gameplay_valid = _validate_gameplay_settings()
+	
+	return graphics_valid and audio_valid and gameplay_valid
+
+func _validate_graphics_settings() -> bool:
+	"""Check if graphics settings are compatible and valid"""
+	# Check if resolution is supported
+	if _resolution_option:
+		var selected_resolution = _get_selected_resolution()
+		if not _is_resolution_supported(selected_resolution):
+			_show_error("Selected resolution not supported: %s" % str(selected_resolution))
+			return false
+	
+	# Check fullscreen compatibility
+	if _fullscreen_check and _fullscreen_check.button_pressed:
+		if not _can_go_fullscreen():
+			_show_error("Fullscreen not available on this system")
+			return false
+	
+	# Check UI scale range
+	if _ui_scale_slider:
+		var ui_scale_percent = _ui_scale_slider.value
+		var ui_scale = ui_scale_percent / 100.0  # Convert percent to scale factor
+		print("DEBUG: UI scale percent: ", ui_scale_percent, ", scale factor: ", ui_scale)
+		if ui_scale < 0.5 or ui_scale > 2.0:
+			_show_error("UI scale must be between 0.5x and 2.0x")
+			return false
+	
+	# Check FOV range
+	if _fov_min < 1.0 or _fov_max > 360.0 or _fov_min >= _fov_max:
+		_show_error("Invalid FOV range: Min must be >= 1.0, Max must be <= 360.0, and Min < Max")
+		return false
+	
+	return true
+
+func _validate_audio_settings() -> bool:
+	"""Check if audio settings are within valid ranges"""
+	# Check volume ranges for all buses
+	var bus_configs = [
+		{"name": "Master", "slider": _master_slider, "bus_index": _master_bus},
+		{"name": "Music", "slider": _music_slider, "bus_index": _music_bus},
+		{"name": "SFX", "slider": _sfx_slider, "bus_index": _sfx_bus},
+		{"name": "UI", "slider": null, "bus_index": _ui_bus}  # UI bus may not have slider
+	]
+	
+	for config in bus_configs:
+		var bus_name = config["name"]
+		var slider = config["slider"]
+		var bus_index = config["bus_index"]
+		
+		if bus_index >= 0:
+			var volume_db = AudioServer.get_bus_volume_db(bus_index)
+			
+			# Check if volume is within reasonable dB range (-80 to 0 dB)
+			if volume_db < -80 or volume_db > 0:
+				_show_error("Invalid volume for %s bus: %.1f dB (must be between -80 and 0 dB)" % [bus_name, volume_db])
+				return false
+			
+			# If slider exists, verify it matches bus volume
+			if slider:
+				var slider_percent = slider.value
+				var expected_db = linear_to_db(slider_percent / 100.0)
+				if abs(volume_db - expected_db) > 1.0:  # Allow 1dB tolerance
+					print("Warning: %s slider (%.1f%%) doesn't match bus volume (%.1f dB)" % [
+						bus_name, slider_percent, volume_db
+					])
+		else:
+			push_warning("Audio bus %s not found, skipping validation" % bus_name)
+	
+	return true
+
+func _validate_gameplay_settings() -> bool:
+	"""Check if gameplay settings are valid"""
+	# Check difficulty selection
+	if _difficulty_option:
+		var difficulty_index = _difficulty_option.selected
+		if difficulty_index < 0 or difficulty_index >= _difficulty_option.item_count:
+			_show_error("Invalid difficulty selection")
+			return false
+	
+	# Add more gameplay validation as needed
+	return true
+
+func _get_selected_resolution() -> Vector2i:
+	"""Get the currently selected resolution from the option button"""
+	if not _resolution_option:
+		return Vector2i.ZERO
+	
+	var selected_text = _resolution_option.get_item_text(_resolution_option.selected)
+	# Parse resolution from text like "1920x1080"
+	var parts = selected_text.split("x")
+	if parts.size() == 2:
+		return Vector2i(int(parts[0]), int(parts[1]))
+	
+	return Vector2i.ZERO
+
+func _is_resolution_supported(resolution: Vector2i) -> bool:
+	"""Check if the given resolution is supported by the system"""
+	if resolution == Vector2i.ZERO:
+		return false
+	
+	# Get list of supported resolutions (unused but kept for reference)
+	var _supported_resolutions = DisplayServer.screen_get_size()
+	
+	# Basic validation - check if resolution is reasonable
+	if resolution.x < 640 or resolution.y < 480:
+		return false  # Too small
+	
+	if resolution.x > 7680 or resolution.y > 4320:
+		return false  # Too large (8K+)
+	
+	# Check common aspect ratios
+	var aspect_ratio = float(resolution.x) / float(resolution.y)
+	var common_ratios = [4.0/3.0, 16.0/9.0, 16.0/10.0, 21.0/9.0]
+	
+	for ratio in common_ratios:
+		if abs(aspect_ratio - ratio) < 0.1:  # Allow 10% tolerance
+			return true
+	
+	# If not a common ratio, still allow it but warn
+	print("Warning: Unusual aspect ratio %.2f for resolution %s" % [aspect_ratio, resolution])
+	return true
+
+func _can_go_fullscreen() -> bool:
+	"""Check if fullscreen mode is available on this system"""
+	# Most systems support fullscreen, but we can add specific checks
+	# For now, just return true as a basic check
+	return true
+
+func _show_error(message: String):
+	"""Show an error message to the user"""
+	print("Settings Error: %s" % message)
+	
+	# You could show a popup or update a label here
+	# For now, just print to console and reset apply button
+	_apply_button.modulate = Color.RED
+	
+	# Reset after 2 seconds
+	await get_tree().create_timer(2.0).timeout
+	_apply_button.modulate = Color.WHITE
 
 func _on_back_pressed() -> void:
 	if audio_manager:

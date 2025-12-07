@@ -1,4 +1,4 @@
-[gd_scene load_steps=14 format=3 uid="uid://main"]
+[gd_scene load_steps=16 format=3 uid="uid://main"]
 
 [ext_resource type="Script" uid="uid://ftymcretu8sr" path="res://scripts/Main.gd" id="1_main"]
 [ext_resource type="Script" uid="uid://bmmqny1obnyic" path="res://scripts/EnemySpawner.gd" id="3_enemy_spawner"]
@@ -13,6 +13,8 @@
 [ext_resource type="Script" path="res://scripts/FactionManager.gd" id="11_faction_manager"]
 [ext_resource type="Script" path="res://scripts/SpawnManager.gd" id="12_spawn_manager"]
 [ext_resource type="PackedScene" uid="uid://bvnv8qrl8k7q" path="res://scenes/AudioManager.tscn" id="13_audio_manager"]
+[ext_resource type="Script" path="res://scripts/TerritoryGridVisualizer.gd" id="15_territory_visualizer"]
+[ext_resource type="Script" path="res://scripts/StockManager.gd" id="16_stock_manager"]
 
 [node name="Main" type="Node2D"]
 script = ExtResource("1_main")
@@ -46,6 +48,15 @@ script = ExtResource("11_faction_manager")
 [node name="SpawnManager" type="Node" parent="."]
 script = ExtResource("12_spawn_manager")
 
-[node name="InventoryUI" parent="." instance=ExtResource("10_inventory")]
+[node name="StockManager" type="Node" parent="."]
+script = ExtResource("16_stock_manager")
+
+[node name="TerritoryGridVisualizer" type="Node2D" parent="."]
+script = ExtResource("15_territory_visualizer")
 
 [node name="InventoryState" parent="." instance=ExtResource("14_inventory_state")]
+
+[node name="InventoryLayer" type="CanvasLayer" parent="."]
+layer = 10
+
+[node name="InventoryUI" parent="InventoryLayer" instance=ExtResource("10_inventory")]
