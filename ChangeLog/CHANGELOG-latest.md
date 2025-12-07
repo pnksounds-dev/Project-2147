@@ -406,10 +406,41 @@ scripts/
 
 ---
 
+### **V3.2.2 - World, HUD, Trading & Economy Integration**
+**Release Date**: December 7, 2025  
+**Priority**: HIGH
+
+#### Project & configuration updates
+- Switched main scene from `MainMenu.tscn` to `LoadingScreen.tscn` for a cleaner startup flow.
+- Updated Godot editor path to the new `exe/` subdirectory.
+- Changed application icon from **OrbMaster** to **OrbBender**.
+- Set window stretch aspect to `expand` for better handling of different resolutions.
+
+#### Autoloads & core systems
+- Added new autoload singletons:
+  - `SettingsManager`, `ItemDatabase` (refactored path), `InventoryState`, `AudioManager`, `EconomySystem`.
+- Wired `EconomySystem` and inventory state into `Main.gd`, `HUD_Complete.gd`, and trading UI.
+
+#### Input & controls
+- Moved camera zoom controls from keyboard to mouse wheel (scroll up/down).
+- Switched screenshot key from **Page Up** to **F12**.
+
+#### HUD, inventory & trading
+- Removed legacy HUD scenes (`HUD.tscn`, `HUD_Simple.tscn`, `HUD_old.tscn`) and consolidated into `HUD_Complete.tscn`.
+- Tightened connections between HUD, `InventoryState`, and `EconomySystem` (health/xp/coins/skill points).
+- Reworked the trading flow with a more robust `TradingPanel` system tied to item/economy data.
+
+#### World systems: patrols, territories & economy
+- Improved mothership patrol logic for more believable movement.
+- Expanded territory chunk claim logic via `TerritoryManager.gd` and `TerritorySpawner.gd`.
+- Strengthened the central `EconomySystem` for coin management and trader stock integration.
+
+---
+
 ## 📊 VERSION SUMMARY
 
-### Current Version: **V3.2.1** (Launch Stability & UI Fixes)
-**Latest Major Feature**: Complete launch system overhaul with modern LoadingScreen design, AudioManager reconstruction, and game start functionality fixes
+### Current Version: **V3.2.2** (Launch + World/HUD/Trading Integration)
+**Latest Major Feature**: LoadingScreen overhaul plus project configuration, HUD, inventory, trading, patrol, territory, and economy integration work
 
 ### System Integration Status:
 - ✅ **Tier 1**: Core Foundation - COMPLETE

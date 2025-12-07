@@ -178,5 +178,5 @@ The **Updates** tab in the main menu now renders this file:
 
 ---
 
-**Current Game Version**: **3.2.1** (World + Trading + Main Menu/Ship Builder Overhaul)  
+**Current Game Version**: **3.2.2** (World + Trading + HUD/Inventory/Economy Integration & Main Menu/Ship Builder Overhaul)  
 **Changelog Source**: Unified from `CHANGELOG-latest.md`, `MAIN_MENU_CHANGELOG.md`, and reference project docs.

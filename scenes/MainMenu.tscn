@@ -232,6 +232,24 @@ theme_override_styles/focus = SubResource("StyleBoxFlat_btn_focus")
 text = "Inventory"
 flat = true
 
+[node name="ShopButton" type="Button" parent="CanvasLayer/TopBarContainer/TopBarCenter/TopButtons"]
+custom_minimum_size = Vector2(100, 40)
+layout_mode = 2
+size_flags_horizontal = 3
+tooltip_text = "Shop (7)"
+focus_mode = 0
+theme_override_colors/font_color = Color(0.9, 0.9, 0.9, 1)
+theme_override_colors/font_focus_color = Color(0.2, 0.8, 1, 1)
+theme_override_colors/font_pressed_color = Color(0.2, 0.8, 1, 1)
+theme_override_colors/font_hover_color = Color(0.2, 0.8, 1, 1)
+theme_override_font_sizes/font_size = 18
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_normal")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_btn_pressed")
+theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
+theme_override_styles/focus = SubResource("StyleBoxFlat_btn_focus")
+text = "Shop"
+flat = true
+
 [node name="SettingsButton" type="Button" parent="CanvasLayer/TopBarContainer/TopBarCenter/TopButtons"]
 custom_minimum_size = Vector2(100, 40)
 layout_mode = 2
@@ -414,6 +432,14 @@ theme_override_styles/pressed = SubResource("StyleBoxFlat_btn_pressed")
 theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
 text = "🗑️ Delete"
 flat = true
+
+[node name="ShopBar" type="HBoxContainer" parent="CanvasLayer/BottomBarContainer"]
+visible = false
+custom_minimum_size = Vector2(300, 0)
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 12
+alignment = 1
 
 [node name="SettingsBar" type="HBoxContainer" parent="CanvasLayer/BottomBarContainer"]
 visible = false
@@ -668,77 +694,6 @@ anchor_bottom = 1.0
 offset_top = 70.0
 offset_right = -16.0
 offset_bottom = -70.0
-
-[node name="ShopPanel" type="PanelContainer" parent="CanvasLayer/Right"]
-layout_mode = 0
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = 16.0
-offset_top = 15.0
-offset_right = -16.0
-offset_bottom = -15.0
-theme_override_styles/panel = SubResource("StylePanel")
-script = ExtResource("7_shop")
-
-[node name="VBoxContainer" type="VBoxContainer" parent="CanvasLayer/Right/ShopPanel"]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
-theme_override_constants/separation = 12
-
-[node name="ShopTitle" type="Label" parent="CanvasLayer/Right/ShopPanel/VBoxContainer"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.2, 0.8, 1, 1)
-theme_override_font_sizes/font_size = 18
-text = "Shop"
-
-[node name="ConsumablesTitle" type="Label" parent="CanvasLayer/Right/ShopPanel/VBoxContainer"]
-layout_mode = 2
-text = "Consumables"
-
-[node name="ScrollContainer" type="ScrollContainer" parent="CanvasLayer/Right/ShopPanel/VBoxContainer"]
-layout_mode = 2
-horizontal_scroll_mode = 0
-
-[node name="GridContainer" type="GridContainer" parent="CanvasLayer/Right/ShopPanel/VBoxContainer/ScrollContainer"]
-layout_mode = 2
-size_flags_horizontal = 3
-
-[node name="WeaponsTitle" type="Label" parent="CanvasLayer/Right/ShopPanel/VBoxContainer"]
-layout_mode = 2
-text = "Weapons"
-
-[node name="WeaponsScroll" type="ScrollContainer" parent="CanvasLayer/Right/ShopPanel/VBoxContainer"]
-layout_mode = 2
-horizontal_scroll_mode = 0
-
-[node name="GridContainer" type="GridContainer" parent="CanvasLayer/Right/ShopPanel/VBoxContainer/WeaponsScroll"]
-layout_mode = 2
-size_flags_horizontal = 3
-
-[node name="ShipsTitle" type="Label" parent="CanvasLayer/Right/ShopPanel/VBoxContainer"]
-layout_mode = 2
-text = "Ships"
-
-[node name="ShipsScroll" type="ScrollContainer" parent="CanvasLayer/Right/ShopPanel/VBoxContainer"]
-layout_mode = 2
-horizontal_scroll_mode = 0
-
-[node name="GridContainer" type="GridContainer" parent="CanvasLayer/Right/ShopPanel/VBoxContainer/ShipsScroll"]
-layout_mode = 2
-size_flags_horizontal = 3
-
-[node name="Footer" type="HBoxContainer" parent="CanvasLayer/Right/ShopPanel/VBoxContainer"]
-layout_mode = 2
-size_flags_vertical = 0
-
-[node name="CoinsLabel" type="Label" parent="CanvasLayer/Right/ShopPanel/VBoxContainer/Footer"]
-layout_mode = 2
-size_flags_horizontal = 3
-
-[node name="BuyButton" type="Button" parent="CanvasLayer/Right/ShopPanel/VBoxContainer/Footer"]
-layout_mode = 2
-size_flags_horizontal = 3
 
 [node name="SettingsPanel" parent="CanvasLayer" instance=ExtResource("5_settings")]
 visible = false

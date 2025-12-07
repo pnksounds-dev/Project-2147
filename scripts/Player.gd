@@ -559,8 +559,8 @@ func _get_nearby_ark() -> Ark:
 func _open_trading_interface(_ark: Ark) -> void:
 	"""Open trading interface with ARK"""
 	# Phase 1: Prevent multiple instances
-	if get_tree().get_first_node_in_group("trading_panel"):
-		print("Player: Trading panel already open")
+	if get_tree().get_first_node_in_group("trader_panel"):
+		print("Player: Trader panel already open")
 		return
 
 	print("Player: Opening trading interface with ARK")
@@ -570,25 +570,24 @@ func _open_trading_interface(_ark: Ark) -> void:
 	if interaction_prompt:
 		interaction_prompt.hide_prompt()
 	
-	# Instantiate our new programmatic TradingPanel
-	var trading_panel = TradingPanel.new()
+	# Instantiate the TraderPanel UI scene
+	var trader_panel_scene := preload("res://scenes/UI/TraderPanel.tscn")
+	var trader_panel = trader_panel_scene.instantiate()
 	
-	# Allow configuring specific items if ARK provides them, 
-	# otherwise TradingPanel defaults to all items.
-	# if _ark.has_method("get_items_for_sale"):
-	# 	trading_panel.set_items(_ark.get_items_for_sale())
-	
-	# Attach to HUD
+	# Attach to HUD so it shares the same CanvasLayer/UI stack
 	var hud = get_tree().get_first_node_in_group("hud")
 	if hud:
-		hud.add_child(trading_panel)
+		hud.add_child(trader_panel)
 	else:
-		get_tree().root.add_child(trading_panel)
+		get_tree().root.add_child(trader_panel)
 		
-	trading_panel.show_panel()
+	# Open the panel using its own API
+	if trader_panel.has_method("open"):
+		trader_panel.open()
 	
-	# Connect close signal for any cleanup
-	trading_panel.closed.connect(func(): print("Player: Trading panel closed"))
+	# Connect close signal for any cleanup/logging
+	if trader_panel.has_signal("closed"):
+		trader_panel.closed.connect(func(): print("Player: Trader panel closed"))
 	
 	# Play sound
 	var audio_manager = get_tree().get_first_node_in_group("audio_manager")

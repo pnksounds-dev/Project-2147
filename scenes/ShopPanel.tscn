@@ -1,0 +1,80 @@
+[gd_scene load_steps=3 format=3 uid="uid://shoppanel"]
+
+[ext_resource type="Script" path="res://scripts/ShopPanel.gd" id="1_shop"]
+
+[sub_resource type="StyleBoxFlat" id="StylePanel"]
+bg_color = Color(0.05, 0.08, 0.12, 0.6)
+
+[node name="ShopPanel" type="PanelContainer"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 16.0
+offset_top = 12.0
+offset_right = -16.0
+offset_bottom = -15.0
+theme_override_styles/panel = SubResource("StylePanel")
+script = ExtResource("1_shop")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="Title" type="Label" parent="VBoxContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 0.8, 1, 1)
+theme_override_font_sizes/font_size = 18
+text = "Premium Shop"
+
+[node name="ConsumablesTitle" type="Label" parent="VBoxContainer"]
+layout_mode = 2
+text = "Consumables"
+
+[node name="ScrollContainer" type="ScrollContainer" parent="VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="GridContainer" type="GridContainer" parent="VBoxContainer/ScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="WeaponsTitle" type="Label" parent="VBoxContainer"]
+layout_mode = 2
+text = "Weapons"
+
+[node name="WeaponsScroll" type="ScrollContainer" parent="VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="GridContainer" type="GridContainer" parent="VBoxContainer/WeaponsScroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="ShipsTitle" type="Label" parent="VBoxContainer"]
+layout_mode = 2
+text = "Ships"
+
+[node name="ShipsScroll" type="ScrollContainer" parent="VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="GridContainer" type="GridContainer" parent="VBoxContainer/ShipsScroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Footer" type="HBoxContainer" parent="VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 0
+
+[node name="CoinsLabel" type="Label" parent="VBoxContainer/Footer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="BuyButton" type="Button" parent="VBoxContainer/Footer"]
+layout_mode = 2
+size_flags_horizontal = 3

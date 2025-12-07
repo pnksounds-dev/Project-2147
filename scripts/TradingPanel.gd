@@ -223,7 +223,13 @@ func _update_sell_total_price():
 	
 	var item_data = item_database.get_item(current_sell_item)
 	var quantity = int(sell_quantity_spinbox.value)
-	buy_button.disabled = true
+	var total = item_data["sell_price"] * quantity
+	
+	sell_total_price.text = "Total: " + str(total) + " coins"
+	
+	# Update sell button state
+	if player_coins:
+		sell_button.disabled = not player_coins.can_afford(total)
 
 func _reset_sell_details():
 	"""Reset sell details panel"""
@@ -234,3 +240,70 @@ func _reset_sell_details():
 	sell_total_price.text = "Total: 0 coins"
 	sell_quantity_spinbox.value = 1
 	sell_button.disabled = true
+
+func _reset_buy_details():
+	"""Reset buy details panel"""
+	current_buy_item = ""
+	buy_item_name.text = "Select an item"
+	buy_item_description.text = ""
+	buy_item_price.text = ""
+	buy_total_price.text = "Total: 0 coins"
+	buy_quantity_spinbox.value = 1
+	buy_button.disabled = true
+
+func _on_buy_pressed():
+	"""Handle buy button pressed"""
+	if current_buy_item.is_empty() or not item_database or not player_coins:
+		return
+	
+	var item_data = item_database.get_item(current_buy_item)
+	if item_data.is_empty():
+		return
+	
+	var quantity := int(buy_quantity_spinbox.value)
+	if quantity <= 0:
+		quantity = 1
+	
+	var unit_price := int(item_data.get("buy_price", 0))
+	var total := unit_price * quantity
+	
+	if total <= 0:
+		return
+	
+	if not player_coins.can_afford(total):
+		print("TradingPanel: Not enough coins to buy ", quantity, "x ", current_buy_item)
+		return
+	
+	if player_coins.spend_coins(total):
+		_update_coins_display()
+		item_purchased.emit(current_buy_item, quantity)
+		if audio_manager:
+			audio_manager.play_button_click()
+		# Keep selection but refresh totals
+		_update_buy_total_price()
+
+func _on_sell_pressed():
+	"""Handle sell button pressed"""
+	if current_sell_item.is_empty() or not item_database or not player_coins:
+		return
+	
+	var item_data = item_database.get_item(current_sell_item)
+	if item_data.is_empty():
+		return
+	
+	var quantity := int(sell_quantity_spinbox.value)
+	if quantity <= 0:
+		quantity = 1
+	
+	var unit_price := int(item_data.get("sell_price", 0))
+	var total := unit_price * quantity
+	
+	if total <= 0:
+		return
+	
+	if player_coins.add_coins(total):
+		_update_coins_display()
+		item_sold.emit(current_sell_item, quantity)
+		if audio_manager:
+			audio_manager.play_button_click()
+		_update_sell_total_price()

@@ -6,7 +6,7 @@ class_name MainMenu
 @export var version_text: String = "Version 3.2.1"
 @export var background_texture_path: String = "res://assets/environment/backgrounds/"
 
-enum Mode { HOME, SETTINGS, CHANGELOG, GALLERY, SHIPS, SAVES, DEBUG, INVENTORY }
+enum Mode { HOME, SETTINGS, CHANGELOG, GALLERY, SHIPS, SAVES, INVENTORY, SHOP, DEBUG }
 var current_mode: int = Mode.HOME
 var _transitioning: bool = false
 var _selected_ship: String = ""
@@ -31,6 +31,7 @@ var _middle_layout_full: Dictionary = {}
 @onready var _ships_bar: HBoxContainer = get_node_or_null("CanvasLayer/BottomBarContainer/ShipsBar")
 @onready var _saves_bar: HBoxContainer = get_node_or_null("CanvasLayer/BottomBarContainer/SavesBar")
 @onready var _inventory_bar: HBoxContainer = get_node_or_null("CanvasLayer/BottomBarContainer/InventoryBar")
+@onready var _shop_bar: HBoxContainer = get_node_or_null("CanvasLayer/BottomBarContainer/ShopBar")
 
 # Tab button references for visual feedback
 @onready var _tab_buttons: Dictionary = {
@@ -39,7 +40,8 @@ var _middle_layout_full: Dictionary = {}
 	Mode.SHIPS: get_node_or_null("CanvasLayer/TopBarContainer/TopBarCenter/TopButtons/ShipsButton"),
 	Mode.GALLERY: get_node_or_null("CanvasLayer/TopBarContainer/TopBarCenter/TopButtons/GalleryButton"),
 	Mode.SETTINGS: get_node_or_null("CanvasLayer/TopBarContainer/TopBarCenter/TopButtons/SettingsButton"),
-	Mode.INVENTORY: get_node_or_null("CanvasLayer/TopBarContainer/TopBarCenter/TopButtons/InventoryButton")
+	Mode.INVENTORY: get_node_or_null("CanvasLayer/TopBarContainer/TopBarCenter/TopButtons/InventoryButton"),
+	Mode.SHOP: get_node_or_null("CanvasLayer/TopBarContainer/TopBarCenter/TopButtons/ShopButton")
 }
 
 # Style resources for tab feedback - will be created dynamically
@@ -93,7 +95,7 @@ func _ready():
 func _update_bottom_bar_visibility():
 	"""Show/hide bottom bar containers based on current mode"""
 	# Hide all bottom bars first
-	var bars = [_home_bar, _gallery_bar, _settings_bar, _ships_bar, _saves_bar, _inventory_bar]
+	var bars = [_home_bar, _gallery_bar, _settings_bar, _ships_bar, _saves_bar, _inventory_bar, _shop_bar]
 	for bar in bars:
 		if bar:
 			bar.visible = false
@@ -112,6 +114,8 @@ func _update_bottom_bar_visibility():
 			if _saves_bar: _saves_bar.visible = true
 		Mode.INVENTORY:
 			if _inventory_bar: _inventory_bar.visible = true
+		Mode.SHOP:
+			if _shop_bar: _shop_bar.visible = true
 		Mode.CHANGELOG:
 			if _home_bar: _home_bar.visible = true  # Use home bar for changelog
 		Mode.DEBUG:
@@ -165,6 +169,8 @@ func _switch_mode(new_mode: int, button: Button = null):
 			pass  # Panel handled by _set_active_tab
 		Mode.INVENTORY:
 			_show_inventory_panel()  # Special case for inventory
+		Mode.SHOP:
+			_show_shop_panel()  # Special case for shop
 		Mode.CHANGELOG:
 			pass  # Panel handled by _set_active_tab
 		Mode.DEBUG:
@@ -186,6 +192,7 @@ func _connect_buttons():
 	var ships_btn = get_node_or_null("CanvasLayer/TopBarContainer/TopBarCenter/TopButtons/ShipsButton")
 	var saves_btn = get_node_or_null("CanvasLayer/TopBarContainer/TopBarCenter/TopButtons/SavesButton")
 	var inventory_top_btn = get_node_or_null("CanvasLayer/TopBarContainer/TopBarCenter/TopButtons/InventoryButton")
+	var shop_btn = get_node_or_null("CanvasLayer/TopBarContainer/TopBarCenter/TopButtons/ShopButton")
 	var quit_btn = get_node_or_null("CanvasLayer/TopBarContainer/TopBarCenter/TopButtons/QuitButton")
 	
 	if start_btn and not start_btn.pressed.is_connected(_on_start_pressed):
@@ -202,6 +209,8 @@ func _connect_buttons():
 		saves_btn.pressed.connect(_on_saves_pressed)
 	if inventory_top_btn and not inventory_top_btn.pressed.is_connected(_on_inventory_pressed):
 		inventory_top_btn.pressed.connect(_on_inventory_pressed)
+	if shop_btn and not shop_btn.pressed.is_connected(_on_shop_pressed):
+		shop_btn.pressed.connect(_on_shop_pressed)
 	if quit_btn and not quit_btn.pressed.is_connected(_on_quit_pressed):
 		quit_btn.pressed.connect(_on_quit_pressed)
 	
@@ -309,6 +318,8 @@ func _get_active_button() -> Button:
 			return tabs.get_node_or_null("SavesButton")
 		Mode.INVENTORY:
 			return tabs.get_node_or_null("InventoryButton")
+		Mode.SHOP:
+			return tabs.get_node_or_null("ShopButton")
 		Mode.DEBUG:
 			return null
 		_:
@@ -346,6 +357,7 @@ func _set_active_tab(btn: Button):
 	# Ensure debug inline panel is hidden when leaving Debug tab
 	_hide_debug_panel()
 	_hide_inventory_panel()
+	_hide_shop_panel()
 	_apply_middle_layout_default()
 	
 	# Show appropriate panel
@@ -385,6 +397,12 @@ func _set_active_tab(btn: Button):
 		if middle:
 			middle.visible = true
 		_show_inventory_panel()
+	elif btn.name == "ShopButton":
+		current_mode = Mode.SHOP
+		_apply_middle_layout_full()
+		if middle:
+			middle.visible = true
+		_show_shop_panel()
 	elif btn.name == "DebugButton":
 		current_mode = Mode.DEBUG
 		if middle:
@@ -457,6 +475,11 @@ func _input(event: InputEvent) -> void:
 				if audio_manager:
 					audio_manager.play_button_click()
 				_switch_mode(Mode.INVENTORY, _get_button("InventoryButton"))
+				get_viewport().set_input_as_handled()
+			KEY_7:
+				if audio_manager:
+					audio_manager.play_button_click()
+				_switch_mode(Mode.SHOP, _get_button("ShopButton"))
 				get_viewport().set_input_as_handled()
 
 func _on_start_pressed():
@@ -790,6 +813,14 @@ func _hide_inventory_panel() -> void:
 	if _inventory_ui and is_instance_valid(_inventory_ui):
 		_inventory_ui.visible = false
 
+func _hide_shop_panel() -> void:
+	"""Hide and clean up shop panel"""
+	var middle = get_node_or_null("CanvasLayer/Middle")
+	if middle:
+		var shop_panel = middle.get_node_or_null("ShopPanel")
+		if shop_panel and is_instance_valid(shop_panel):
+			shop_panel.queue_free()
+
 func _show_inventory_panel() -> void:
 	_open_inventory_ui()
 
@@ -803,6 +834,28 @@ func _on_inventory_pressed() -> void:
 	if audio_manager:
 		audio_manager.play_button_click()
 	_switch_mode(Mode.INVENTORY, _get_button("InventoryButton"))
+
+func _on_shop_pressed() -> void:
+	if audio_manager:
+		audio_manager.play_button_click()
+	_switch_mode(Mode.SHOP, _get_button("ShopButton"))
+
+func _show_shop_panel() -> void:
+	"""Show the shop panel in the middle layout"""
+	# Clear middle container first
+	var middle = get_node_or_null("CanvasLayer/Middle")
+	if not middle:
+		return
+	
+	# Remove existing children
+	for child in middle.get_children():
+		child.queue_free()
+	
+	# Instance the shop panel scene
+	var shop_scene = preload("res://scenes/ShopPanel.tscn")
+	var shop_panel = shop_scene.instantiate()
+	shop_panel.name = "ShopPanel"
+	middle.add_child(shop_panel)
 
 func _on_quit_pressed() -> void:
 	if audio_manager:
