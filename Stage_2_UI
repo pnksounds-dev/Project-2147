@@ -1,0 +1,431 @@
+# Stage 2: UI Unification - Trading Interface Consolidation
+
+## Overview
+
+Stage 2 consolidates the fragmented trading UIs (TraderPanel, TradingPanel, ShopPanel, MainMenu shop) into a single, modern unified interface. Building on Stage 1's abstraction layer, this phase focuses on creating a cohesive user experience while preserving all existing functionality.
+
+## Current UI Fragmentation Analysis
+
+### Existing UI Systems
+- **TraderPanel.gd**: Grid-based, EconomySystem integration, cargo validation (most complete)
+- **TradingPanel.gd**: Tab-based buy/sell, ItemDatabase integration, basic functionality
+- **ShopPanel.gd**: Modern styling, hardcoded data, responsive design
+- **MainMenu shop**: Inline integration, limited functionality
+
+### Strategic Decision
+**Approach**: Extend TraderPanel to become the unified interface
+- Preserves existing cargo validation logic (lines 313-336)
+- Maintains EconomyService integration from Stage 1
+- Leverages well-structured `_create_trader_slot()` method
+- Minimizes disruption to existing functionality
+
+---
+
+## Phase 2.1: Enhanced TraderPanel Foundation
+
+### Objective
+Extend TraderPanel.gd to support unified trading while maintaining all existing functionality.
+
+### Implementation Steps
+
+#### 1. Add Buy/Sell Mode Support
+```gdscript
+# Enhanced TraderPanel.gd
+enum TradingMode { BUY, SELL, TRADE }
+var current_mode: TradingMode = TradingMode.BUY
+
+signal trading_mode_changed(new_mode: TradingMode)
+signal item_sold(item_id: String, quantity: int)
+```
+
+#### 2. Integrate Stage 1 Services
+```gdscript
+func _ready():
+    # Replace direct EconomySystem access
+    economy_service = get_node_or_null("/root/EconomyService")
+    item_catalog = get_node_or_null("/root/ItemCatalog")
+    inventory_bridge = get_node_or_null("/root/InventoryBridge")
+    
+    # Connect to unified services
+    if economy_service:
+        economy_service.coins_changed.connect(_on_coins_changed)
+        economy_service.price_changed.connect(_on_price_changed)
+```
+
+#### 3. Modern Styling Integration
+- Apply ShopPanel's glass effect styling
+- Implement cyan accent color scheme
+- Add responsive design patterns
+- Enhance hover states and animations
+
+### Files to Modify
+- **UPDATE** - `scripts/UI/TraderPanel.gd` - Core enhancements
+- **UPDATE** - `scenes/TraderPanel.tscn` - UI UI` - `scenes/TradingPanel.tscn` - Update scene structure
+
+---
+
+## Phase 2.2: Unified Trading Interface Design
+
+### Objective
+Create a cohesive UI that combines the best elements from all existing trading interfaces.
+
+### UI Structure Design
+
+#### 1. Header Section
+```gdscript
+# Enhanced header with mode switching
+var mode_selector: HBoxContainer
+var buy_button: Button
+var sell_button: Button
+var coins_display: Label
+var refresh_button: Button
+```
+
+#### 2. Content Area
+```gdscript
+# Tab-based content switching
+var buy_container: ScrollContainer
+var sell_container: ScrollContainer
+var current_container: ScrollContainer
+```
+
+#### 3. Item Grid Enhancement
+```gdscript
+# Enhanced item cards with ShopPanel styling
+func _create_unified_item_card(item_data: Dictionary, mode: TradingMode) -> Control
+func _create_buy_card(item_data: Dictionary) -> Control
+func _create_sell_card(item_data: Dictionary) -> Control
+```
+
+### Styling Integration
+- **From ShopPanel**: Glass effects, modern card design, cyan accents
+- **From TraderPanel**: Grid layout, cargo validation, responsive sizing
+- **From TradingPanel**: Tab-based mode switching, quantity selection
+
+### Files to Create/Modify
+- **UPDATE** - `scripts/UI/TraderPanel.gd` - UI structure updates
+- **NEW** - `scripts/ui/UnifiedItemCard.gd` - Reusable item card component
+- **UPDATE** - `scenes/TraderPanel.tscn` - Complete UI redesign
+
+---
+
+## Phase 2.3: Selling Functionality Integration
+
+### Objective
+Add comprehensive selling functionality to TraderPanel while preserving existing buy mechanics.
+
+### Implementation Steps
+
+#### 1. Inventory Integration
+```gdscript
+func _populate_sell_items():
+    """Populate sell tab with player's actual inventory"""
+    var inventory_items = inventory_bridge.get_inventory_items()
+    var sell_items = []
+    
+    for item in inventory_items:
+        var item_data = item_catalog.get_unified_item(item.item_id)
+        if not item_data.is_empty() and item_data.get("can_sell", true):
+            sell_items.append({
+                "id": item.item_id,
+                "name": item_data.get("name", "Unknown"),
+                "quantity": item.quantity,
+                "sell_price": economy_service.get_current_price(item.item_id),
+                "icon": item_data.get("icon_path", "")
+            })
+    
+    _create_sell_cards(sell_items)
+```
+
+#### 2. Transaction Processing
+```gdscript
+func _on_sell_pressed(item_data: Dictionary, quantity: int):
+    """Handle selling items from inventory"""
+    var item_id = item_data.get("id", "")
+    var total_price = economy_service.get_current_price(item_id) * quantity
+    
+    # Check if player has enough items
+    if inventory_bridge.get_item_count(item_id) < quantity:
+        _show_error("Not enough items to sell")
+        return
+    
+    # Process sale
+    if inventory_bridge.remove_item(item_id, quantity):
+        economy_service.add_coins(total_price)
+        item_sold.emit(item_id, quantity)
+        _refresh_sell_display()
+```
+
+#### 3. UI Updates
+- Add sell tab to existing tab system
+- Implement inventory item filtering
+- Add quantity selection for selling
+- Update coin display after transactions
+
+### Files to Modify
+- **PRIMARY** - `scripts/UI/TraderPanel.gd` - Core selling logic
+- **UPDATE** - `scenes/TraderPanel.tscn` - Add sell tab UI
+- **UPDATE** - `scripts/economy/InventoryBridge.gd` - Add selling support methods
+
+---
+
+## Phase 2.4: MainMenu Integration Update
+
+### Objective
+Update MainMenu to use the unified TraderPanel instead of separate shop integration.
+
+### Implementation Steps
+
+#### 1. Replace ShopPanel Integration
+```gdscript
+# MainMenu.gd - Updated shop handling
+func _show_shop_panel() -> void:
+    """Show unified trading panel instead of ShopPanel"""
+    _hide_all_panels()
+    
+    # Create or reuse unified TraderPanel
+    var unified_trader = get_tree().get_first_node_in_group("unified_trader")
+    if not unified_trader:
+        unified_trader = load("res://scenes/TraderPanel.tscn").instantiate()
+        unified_trader.name = "UnifiedTrader"
+        unified_trader.add_to_group("unified_trader")
+        
+        # Configure for main menu usage
+        unified_trader.set_main_menu_mode(true)
+        
+        var middle = get_node_or_null("CanvasLayer/Middle")
+        if middle:
+            middle.add_child(unified_trader)
+    
+    unified_trader.open()
+    unified_trader.set_trading_mode(TraderPanel.TradingMode.BUY)
+```
+
+#### 2. Scene Management
+- Remove ShopPanel instantiation code
+- Add unified TraderPanel to MainMenu scene tree
+- Implement proper cleanup and memory management
+- Maintain existing tab switching behavior
+
+#### 3. Layout Adaptation
+- Adapt TraderPanel for MainMenu layout constraints
+- Preserve existing bottom bar context
+- Maintain tab visual feedback system
+- Ensure proper anchor and margin handling
+
+### Files to Modify
+- **PRIMARY** - `scripts/MainMenu.gd` - Shop integration replacement
+- **SECONDARY** - `scenes/MainMenu.tscn` - Scene structure updates
+- **RE**** -** - `scripts/UI/TraderPanel.gd` - Add main menu mode support
+
+---
+
+## Phase 2.5: Legacy UI Deprecation
+
+### Objective
+Mark legacy UIs for removal and provide migration paths for their unique features.
+
+### Implementation Steps
+
+#### 1. Feature Migration Assessment
+```gdscript
+# TradingPanel features to preserve:
+- Tab-based buy/sell switching ✓
+- Quantity selection with SpinBox
+- Detailed item information panels
+- Transaction confirmation dialogs
+
+# ShopPanel features to preserve:
+- Modern glass styling
+- Responsive card design
+- Category filtering
+- Enhanced hover states
+```
+
+#### 2. Deprecation Markers
+```gdscript
+# Add deprecation warnings
+@warning_ignore("unused_variable")
+func _ready():
+    push_warning("TradingPanel is deprecated. Use unified TraderPanel instead.")
+    
+# Add migration helpers
+func get_migration_guide() -> String:
+    return "Migrate to TraderPanel with TradingMode.BUY and TradingMode.SELL"
+```
+
+#### 3. Documentation Updates
+- Update all references to deprecated UIs
+- Add migration examples to documentation
+- Create feature parity checklist
+- Document timeline for removal
+
+### Files to Modify
+- **PRIMARY** - `scripts/UI/TradingPanel.gd` - Add deprecation warnings
+- **SECOND** - `scripts/UI/ShopPanel.gd` - Mark as deprecated
+- **SECOND** - `scripts/MainMenu.gd` - Remove legacy UI references
+- **NEW** - `Docs/ui_deprecation_guide.md` - Migration documentation
+
+---
+
+## Phase 2.6: Responsive Design System
+
+### Objective
+Implement responsive design patterns using InventoryLayoutManager as foundation.
+
+### Implementation Steps
+
+#### 1. Layout Manager Integration
+```gdscript
+# Enhanced TraderPanel with responsive design
+var layout_manager: InventoryLayoutManager
+var current_layout_config: Dictionary
+
+func _apply_responsive_layout():
+    """Apply responsive layout based on viewport size"""
+    var viewport_size = get_viewport().size
+    var layout_config = layout_manager.calculate_trading_layout(viewport_size)
+    
+    _apply_grid_settings(layout_config.grid_columns, layout_config.card_size)
+    _apply_spacing(layout_config.card_spacing)
+    _update_scroll_behavior(layout_config.scroll_enabled)
+```
+
+#### 2. Card Component System
+```gdscript
+# scripts/ui/UnifiedItemCard.gd
+extends Control
+class_name UnifiedItemCard
+
+var item_data: Dictionary
+var card_mode: TraderPanel.TradingMode
+var is_selected: bool = false
+
+signal card_clicked(item_data: Dictionary)
+signal card_hovered(item_data: Dictionary)
+signal quantity_changed(item_id: String, quantity: int)
+```
+
+#### 3. Mobile Compatibility
+- Touch-friendly button sizes
+- Swipe gestures for category switching
+- Optimized scroll behavior
+- Adaptive font sizes
+
+### Files to Create/Modify
+- **NEW** - `scripts/ui/UnifiedItemCard.gd` - Reusable card component
+- **UPDATE** - `scripts/inventory/InventoryLayoutManager.gd` - Add trading layout support
+- **PRIMARY** - `scripts/UI/TraderPanel.gd` - Integrate responsive design
+- **SECONDARY** - `scenes/TraderPanel.tscn` - Update scene structure
+
+---
+
+## Phase 2.7: Testing & Validation
+
+### Objective
+Comprehensive testing of the unified interface to ensure feature parity and stability.
+
+### Testing Strategy
+
+#### 1. Functional Testing
+```gdscript
+# Test scenarios
+func test_buy_functionality():
+    """Test all buying scenarios work correctly"""
+    
+func test_sell_functionality():
+    """Test selling from inventory"""
+    
+func test_mode_switching():
+    """Test buy/sell mode transitions"""
+    
+func test_cargo_validation():
+    """Test cargo space checks still work"""
+```
+
+#### 2. UI/UX Testing
+- Visual consistency across all modes
+- Responsive behavior at different viewport sizes
+- Animation and transition smoothness
+- Accessibility compliance
+
+#### 3. Integration Testing
+- MainMenu integration works correctly
+- EconomyService integration functions properly
+- InventoryBridge maintains all functionality
+- Save/load operations preserved
+
+### Files to Create/Modify
+- **NEW** - `tests/test_unified_trader.gd` - Comprehensive test suite
+- **NEW** - `tests/ui_responsive_tests.gd` - Responsive design tests
+- **UPDATE** - `tests/integration_tests.gd` - Integration validation
+
+---
+
+## Success Criteria for Stage 2
+
+### Functional Requirements
+- [ ] Single unified trading interface replaces all 4 legacy UIs
+- [ ] All existing buy functionality preserved and enhanced
+- [ ] Complete selling functionality integrated from inventory
+- [ ] Cargo space validation maintained for all operations
+- [ ] EconomyService integration working across all features
+
+### UI/UX Requirements
+- [ ] Modern styling applied consistently (glass effects, cyan accents)
+- [ ] Responsive design works at all viewport sizes
+- [ ] Smooth animations and transitions
+- [ ] Intuitive buy/sell mode switching
+- [ ] Mobile-friendly touch interactions
+
+### Integration Requirements
+- [ ] MainMenu uses unified TraderPanel correctly
+- [ ] All Stage 1 services (ItemCatalog, EconomyService, InventoryBridge) integrated
+- [ ] Legacy UI deprecated with proper warnings
+- [ ] Save/load functionality preserved
+- [ ] Performance impact minimal (<10% overhead)
+
+### Technical Requirements
+- [ ] No breaking changes to existing game systems
+- [ ] Memory usage stable or improved
+- [ ] Code complexity reduced through unification
+- [ ] Proper error handling and validation
+- [ ] Comprehensive test coverage (>90%)
+
+---
+
+## Risk Mitigation
+
+### High-Risk Areas
+1. **Cargo Validation Logic**: Critical for game balance
+2. **EconomyService Integration**: New dependency from Stage 1
+3. **MainMenu Integration**: MainMenu is complex and sensitive
+4. **Memory Management**: Multiple UI instances
+
+### Mitigation Strategies
+1. **Incremental Enhancement**: Never remove, always extend existing functionality
+2. **Comprehensive Testing**: Test every legacy feature after each change
+3. **Rollback Capability**: Keep legacy UIs functional during transition
+4. **Performance Monitoring**: Track memory and performance metrics
+
+---
+
+## Next Steps
+
+Upon completion of Stage 2:
+1. **Stage 3**: Advanced Economy - Dynamic market mechanics, player influence, regional pricing
+2. **Stage 4**: Polish & Optimization - Performance tuning, production readiness
+
+## Timeline Estimate
+
+- **Phase 2.1**: 2-3 days (TraderPanel foundation enhancement)
+- **Phase 2.2**: 3-4 days (Unified interface design and implementation)
+- **Phase 2.3**: 2-3 days (Selling functionality integration)
+- **Phase 2.4**: 1-2 days (MainMenu integration update)
+- **Phase 2.5**: 1 day (Legacy UI deprecation)
+- **Phase 2.6**: 2-3 days (Responsive design system)
+- **Phase 2.7**: 2-3 days (Testing and validation)
+
+**Total Stage 2 Estimate**: 13-19 days
+
+This timeline assumes Stage 1 is complete and includes buffer time for comprehensive testing and refinement.

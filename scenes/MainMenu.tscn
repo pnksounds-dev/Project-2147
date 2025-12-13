@@ -659,11 +659,11 @@ offset_bottom = -70.0
 [node name="GameStats" type="PanelContainer" parent="CanvasLayer/Middle"]
 layout_mode = 0
 anchor_right = 1.0
-anchor_bottom = 1.0
+anchor_bottom = 0.6
 offset_left = 16.0
 offset_top = 12.0
 offset_right = -16.0
-offset_bottom = -15.0
+offset_bottom = -8.0
 theme_override_styles/panel = SubResource("StylePanel")
 
 [node name="StatsVBox" type="VBoxContainer" parent="CanvasLayer/Middle/GameStats"]
@@ -686,6 +686,87 @@ text = "Last Run Stats:
 <insert player stats from last run here>"
 autowrap_mode = 1
 
+[node name="LoginQuestsPanel" type="PanelContainer" parent="CanvasLayer/Middle"]
+layout_mode = 0
+anchor_top = 0.6
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 16.0
+offset_top = 8.0
+offset_right = -16.0
+offset_bottom = -15.0
+theme_override_styles/panel = SubResource("StylePanel")
+
+[node name="LoginVBox" type="VBoxContainer" parent="CanvasLayer/Middle/LoginQuestsPanel"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 8
+
+[node name="LoginTitle" type="Label" parent="CanvasLayer/Middle/LoginQuestsPanel/LoginVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.8, 0.4, 0.4, 1)
+theme_override_font_sizes/font_size = 16
+text = "Login / Quests Reward."
+
+[node name="DailyLabel" type="Label" parent="CanvasLayer/Middle/LoginQuestsPanel/LoginVBox"]
+layout_mode = 2
+text = "Daily Login Rewards"
+
+[node name="DailyRow" type="HBoxContainer" parent="CanvasLayer/Middle/LoginQuestsPanel/LoginVBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 8
+
+[node name="DailySlot1" type="PanelContainer" parent="CanvasLayer/Middle/LoginQuestsPanel/LoginVBox/DailyRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(64, 64)
+theme_override_styles/panel = SubResource("StylePanel")
+
+[node name="DailySlot2" type="PanelContainer" parent="CanvasLayer/Middle/LoginQuestsPanel/LoginVBox/DailyRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(64, 64)
+theme_override_styles/panel = SubResource("StylePanel")
+
+[node name="DailySlot3" type="PanelContainer" parent="CanvasLayer/Middle/LoginQuestsPanel/LoginVBox/DailyRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(64, 64)
+theme_override_styles/panel = SubResource("StylePanel")
+
+[node name="DailySlot4" type="PanelContainer" parent="CanvasLayer/Middle/LoginQuestsPanel/LoginVBox/DailyRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(64, 64)
+theme_override_styles/panel = SubResource("StylePanel")
+
+[node name="QuestLabel" type="Label" parent="CanvasLayer/Middle/LoginQuestsPanel/LoginVBox"]
+layout_mode = 2
+text = "Quest rewards"
+
+[node name="QuestRow" type="HBoxContainer" parent="CanvasLayer/Middle/LoginQuestsPanel/LoginVBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 8
+
+[node name="QuestSlot1" type="PanelContainer" parent="CanvasLayer/Middle/LoginQuestsPanel/LoginVBox/QuestRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(64, 64)
+theme_override_styles/panel = SubResource("StylePanel")
+
+[node name="QuestSlot2" type="PanelContainer" parent="CanvasLayer/Middle/LoginQuestsPanel/LoginVBox/QuestRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(64, 64)
+theme_override_styles/panel = SubResource("StylePanel")
+
+[node name="QuestSlot3" type="PanelContainer" parent="CanvasLayer/Middle/LoginQuestsPanel/LoginVBox/QuestRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(64, 64)
+theme_override_styles/panel = SubResource("StylePanel")
+
+[node name="QuestSlot4" type="PanelContainer" parent="CanvasLayer/Middle/LoginQuestsPanel/LoginVBox/QuestRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(64, 64)
+theme_override_styles/panel = SubResource("StylePanel")
+
 [node name="Right" type="Control" parent="CanvasLayer"]
 layout_mode = 3
 anchor_left = 0.5
@@ -694,6 +775,78 @@ anchor_bottom = 1.0
 offset_top = 70.0
 offset_right = -16.0
 offset_bottom = -70.0
+
+[node name="UpdatesPanel" type="PanelContainer" parent="CanvasLayer/Right"]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 16.0
+offset_top = 12.0
+offset_right = -16.0
+offset_bottom = -15.0
+theme_override_styles/panel = SubResource("StylePanel")
+
+[node name="UpdatesVBox" type="VBoxContainer" parent="CanvasLayer/Right/UpdatesPanel"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 8
+
+[node name="UpdatesTitle" type="Label" parent="CanvasLayer/Right/UpdatesPanel/UpdatesVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 0.8, 1, 1)
+theme_override_font_sizes/font_size = 18
+text = "Updates & Community"
+
+[node name="TopRow" type="HBoxContainer" parent="CanvasLayer/Right/UpdatesPanel/UpdatesVBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 8
+
+[node name="DlcPanel" type="PanelContainer" parent="CanvasLayer/Right/UpdatesPanel/UpdatesVBox/TopRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/panel = SubResource("StylePanel")
+
+[node name="DlcTitle" type="Label" parent="CanvasLayer/Right/UpdatesPanel/UpdatesVBox/TopRow/DlcPanel"]
+layout_mode = 2
+text = "DLC / Paid Content Advertisement"
+
+[node name="ChangelogPanel" type="PanelContainer" parent="CanvasLayer/Right/UpdatesPanel/UpdatesVBox/TopRow"]
+layout_mode = 2
+size_flags_horizontal = 1
+custom_minimum_size = Vector2(220, 0)
+theme_override_styles/panel = SubResource("StylePanel")
+
+[node name="ChangelogTitle" type="Label" parent="CanvasLayer/Right/UpdatesPanel/UpdatesVBox/TopRow/ChangelogPanel"]
+layout_mode = 2
+text = "ChangeLog"
+
+[node name="BottomRow" type="HBoxContainer" parent="CanvasLayer/Right/UpdatesPanel/UpdatesVBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 8
+
+[node name="YoutubePanel" type="PanelContainer" parent="CanvasLayer/Right/UpdatesPanel/UpdatesVBox/BottomRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/panel = SubResource("StylePanel")
+
+[node name="YoutubeTitle" type="Label" parent="CanvasLayer/Right/UpdatesPanel/UpdatesVBox/BottomRow/YoutubePanel"]
+layout_mode = 2
+text = "Latest Youtube upload"
+
+[node name="DiscordPanel" type="PanelContainer" parent="CanvasLayer/Right/UpdatesPanel/UpdatesVBox/BottomRow"]
+layout_mode = 2
+size_flags_horizontal = 1
+custom_minimum_size = Vector2(220, 0)
+theme_override_styles/panel = SubResource("StylePanel")
+
+[node name="DiscordTitle" type="Label" parent="CanvasLayer/Right/UpdatesPanel/UpdatesVBox/BottomRow/DiscordPanel"]
+layout_mode = 2
+text = "Discord"
 
 [node name="SettingsPanel" parent="CanvasLayer" instance=ExtResource("5_settings")]
 visible = false

@@ -19,7 +19,7 @@ var _filter_controller: FilterController
 var _animation_controller: AnimationController
 
 # UI References
-@onready var _inventory_container: GridContainer = $StageMargin/Stage/CargoColumn/CargoContent/ScrollContainer/InventoryContainer/GridContainer
+@onready var _inventory_container: HFlowContainer = $StageMargin/Stage/CargoColumn/CargoContent/ScrollContainer/InventoryContainer/HFlowContainer
 @onready var _inventory_panel: Control = $StageMargin/Stage/CargoColumn/CargoContent/ScrollContainer/InventoryContainer
 @onready var _equip_column: Control = $StageMargin/Stage/EquipColumn
 @onready var _cargo_panel: Control = $StageMargin/Stage/CargoColumn
@@ -132,10 +132,16 @@ func _apply_ui_settings() -> void:
 	var slot_size = settings_manager.get_setting("ui.inventory_slot_size", 64)
 	var grid_spacing = settings_manager.get_setting("ui.inventory_grid_spacing", 4)
 	
+	# Apply resolution-based scaling before layout calculation
+	var viewport_width = get_viewport().size.x
+	if viewport_width > 1920:
+		var resolution_scale = viewport_width / 1920.0
+		slot_size *= resolution_scale
+	
 	# Calculate responsive layout through layout manager
 	_current_slot_size = _layout_manager.calculate_responsive_layout(slot_size * scale_factor, grid_spacing)
 	
-	# Apply spacing to inventory grid
+	# Apply spacing to inventory flow
 	if _inventory_container:
 		_inventory_container.add_theme_constant_override("h_separation", grid_spacing)
 		_inventory_container.add_theme_constant_override("v_separation", grid_spacing)
@@ -278,7 +284,7 @@ func _hide_inventory_after_animation() -> void:
 	close_requested.emit()
 
 # Component signal handlers
-func _on_layout_calculated(slot_size: float, _columns: int, _grid_spacing: int) -> void:
+func _on_layout_calculated(slot_size: float, _grid_spacing: int) -> void:
 	_current_slot_size = slot_size
 	# Update slots with new size
 	_slot_manager.update_cargo_slots(_filter_controller.get_current_filter(), slot_size)

@@ -3,7 +3,7 @@ class_name InventoryLayoutManager
 
 # Handles responsive layout calculations for the inventory UI
 
-signal layout_calculated(slot_size: float, columns: int, grid_spacing: int)
+signal layout_calculated(slot_size: float, grid_spacing: int)
 
 # Layout constants
 const INVENTORY_COLUMNS := 12
@@ -12,11 +12,11 @@ const STAGE_COLUMN_GAP := 16.0
 const CARGO_PANEL_PADDING := 32.0
 const MIN_SLOT_SIZE := 48.0
 
-var _inventory_container: GridContainer
+var _inventory_container: Container
 var _equip_column: Control
 var _cargo_panel: Control
 
-func initialize(inventory_container: GridContainer, equip_column: Control, cargo_panel: Control) -> void:
+func initialize(inventory_container: HFlowContainer, equip_column: Control, cargo_panel: Control) -> void:
 	_inventory_container = inventory_container
 	_equip_column = equip_column
 	_cargo_panel = cargo_panel
@@ -37,11 +37,10 @@ func calculate_responsive_layout(preferred_slot_size: float, grid_spacing: float
 	
 	var final_slot_size: float = clamp(calculated_slot_size, MIN_SLOT_SIZE, preferred_slot_size)
 	
-	# Update grid container columns
-	_inventory_container.columns = columns
+	# HFlowContainer wraps automatically; no need to set columns
 	
 	# Emit layout information
-	layout_calculated.emit(final_slot_size, columns, grid_spacing)
+	layout_calculated.emit(final_slot_size, grid_spacing)
 	
 	return final_slot_size
 

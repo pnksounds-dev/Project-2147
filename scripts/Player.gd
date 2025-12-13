@@ -558,9 +558,9 @@ func _get_nearby_ark() -> Ark:
 
 func _open_trading_interface(_ark: Ark) -> void:
 	"""Open trading interface with ARK"""
-	# Phase 1: Prevent multiple instances
-	if get_tree().get_first_node_in_group("trader_panel"):
-		print("Player: Trader panel already open")
+	# Prevent multiple instances
+	if get_tree().get_first_node_in_group("trading_panel"):
+		print("Player: Trading panel already open")
 		return
 
 	print("Player: Opening trading interface with ARK")
@@ -568,26 +568,38 @@ func _open_trading_interface(_ark: Ark) -> void:
 	# Hide interaction prompt
 	var interaction_prompt = get_tree().get_first_node_in_group("interaction_prompt")
 	if interaction_prompt:
-		interaction_prompt.hide_prompt()
+		hide_interaction_prompt()
 	
-	# Instantiate the TraderPanel UI scene
-	var trader_panel_scene := preload("res://scenes/UI/TraderPanel.tscn")
-	var trader_panel = trader_panel_scene.instantiate()
+	# Create the TradingPanel instance
+	var trading_panel_scene = load("res://scenes/TradingPanel.tscn")
+	if not trading_panel_scene:
+		print("Player: Failed to load TradingPanel.tscn")
+		return
+		
+	var trading_panel = trading_panel_scene.instantiate()
 	
-	# Attach to HUD so it shares the same CanvasLayer/UI stack
+	# Attach to HUD or root
 	var hud = get_tree().get_first_node_in_group("hud")
 	if hud:
-		hud.add_child(trader_panel)
+		hud.add_child(trading_panel)
 	else:
-		get_tree().root.add_child(trader_panel)
-		
-	# Open the panel using its own API
-	if trader_panel.has_method("open"):
-		trader_panel.open()
+		get_tree().root.add_child(trading_panel)
 	
-	# Connect close signal for any cleanup/logging
-	if trader_panel.has_signal("closed"):
-		trader_panel.closed.connect(func(): print("Player: Trader panel closed"))
+	# Connect signals
+	trading_panel.trading_completed.connect(_on_trading_completed)
+	
+	# Initialize the panel
+	trading_panel.visible = true
+	get_tree().paused = true
+
+func _on_trading_completed():
+	"""Handle trading panel close"""
+	print("Player: Trading completed")
+	get_tree().paused = false
+	# Show interaction prompt again if near an ARK
+	var interaction_prompt = get_tree().get_first_node_in_group("interaction_prompt")
+	if interaction_prompt and current_interactable is Ark:
+		show_interaction_prompt()
 	
 	# Play sound
 	var audio_manager = get_tree().get_first_node_in_group("audio_manager")
@@ -597,6 +609,19 @@ func _open_trading_interface(_ark: Ark) -> void:
 # _on_item_purchased is no longer needed as TradingPanel handles transactions internally
 # Keeping the function signature if you want to reuse it for other things, 
 # otherwise it can be removed or left empty.
+func show_interaction_prompt() -> void:
+	"""Show the interaction prompt if near an interactable"""
+	if current_interactable and is_instance_valid(current_interactable):
+		var interaction_prompt = get_tree().get_first_node_in_group("interaction_prompt")
+		if interaction_prompt:
+			interaction_prompt.show_prompt()
+
+func hide_interaction_prompt() -> void:
+	"""Hide the interaction prompt"""
+	var interaction_prompt = get_tree().get_first_node_in_group("interaction_prompt")
+	if interaction_prompt:
+		interaction_prompt.hide_prompt()
+
 func _on_item_purchased(_item_id: String) -> void:
 	pass
 

@@ -1,0 +1,159 @@
+[gd_scene load_steps=2 format=3 uid="uid://b1c36injnbpoc"]
+
+[ext_resource type="Script" path="res://scripts/TradingPanel.gd" id="1_script"]
+
+[node name="TradingPanel" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_script")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="HeaderPanel" type="HBoxContainer" parent="VBoxContainer"]
+layout_mode = 2
+
+[node name="CoinsLabel" type="Label" parent="VBoxContainer/HeaderPanel"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Coins: 0"
+
+[node name="CloseButton" type="Button" parent="VBoxContainer/HeaderPanel"]
+layout_mode = 2
+text = "Close"
+
+[node name="TabContainer" type="TabContainer" parent="VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="BuyTab" type="Control" parent="VBoxContainer/TabContainer"]
+layout_mode = 2
+metadata/_tab_index = 0
+
+[node name="HSplitContainer" type="HSplitContainer" parent="VBoxContainer/TabContainer/BuyTab"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="BuyItemList" type="ItemList" parent="VBoxContainer/TabContainer/BuyTab/HSplitContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="BuyDetailsPanel" type="Panel" parent="VBoxContainer/TabContainer/BuyTab/HSplitContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="VBoxContainer" type="VBoxContainer" parent="VBoxContainer/TabContainer/BuyTab/HSplitContainer/BuyDetailsPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="ItemNameLabel" type="Label" parent="VBoxContainer/TabContainer/BuyTab/HSplitContainer/BuyDetailsPanel/VBoxContainer"]
+layout_mode = 2
+text = "Select Item"
+
+[node name="DescriptionLabel" type="Label" parent="VBoxContainer/TabContainer/BuyTab/HSplitContainer/BuyDetailsPanel/VBoxContainer"]
+layout_mode = 2
+text = "Description"
+autowrap_mode = 2
+
+[node name="PriceLabel" type="Label" parent="VBoxContainer/TabContainer/BuyTab/HSplitContainer/BuyDetailsPanel/VBoxContainer"]
+layout_mode = 2
+text = "Price"
+
+[node name="QuantityContainer" type="HBoxContainer" parent="VBoxContainer/TabContainer/BuyTab/HSplitContainer/BuyDetailsPanel/VBoxContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="VBoxContainer/TabContainer/BuyTab/HSplitContainer/BuyDetailsPanel/VBoxContainer/QuantityContainer"]
+layout_mode = 2
+text = "Quantity:"
+
+[node name="QuantitySpinBox" type="SpinBox" parent="VBoxContainer/TabContainer/BuyTab/HSplitContainer/BuyDetailsPanel/VBoxContainer/QuantityContainer"]
+layout_mode = 2
+min_value = 1.0
+value = 1.0
+
+[node name="TotalPriceLabel" type="Label" parent="VBoxContainer/TabContainer/BuyTab/HSplitContainer/BuyDetailsPanel/VBoxContainer"]
+layout_mode = 2
+text = "Total Price"
+
+[node name="BuyButton" type="Button" parent="VBoxContainer/TabContainer/BuyTab/HSplitContainer/BuyDetailsPanel/VBoxContainer"]
+layout_mode = 2
+text = "Buy"
+
+[node name="SellTab" type="Control" parent="VBoxContainer/TabContainer"]
+visible = false
+layout_mode = 2
+metadata/_tab_index = 1
+
+[node name="HSplitContainer" type="HSplitContainer" parent="VBoxContainer/TabContainer/SellTab"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="SellItemList" type="ItemList" parent="VBoxContainer/TabContainer/SellTab/HSplitContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="SellDetailsPanel" type="Panel" parent="VBoxContainer/TabContainer/SellTab/HSplitContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="VBoxContainer" type="VBoxContainer" parent="VBoxContainer/TabContainer/SellTab/HSplitContainer/SellDetailsPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="ItemNameLabel" type="Label" parent="VBoxContainer/TabContainer/SellTab/HSplitContainer/SellDetailsPanel/VBoxContainer"]
+layout_mode = 2
+text = "Select Item"
+
+[node name="DescriptionLabel" type="Label" parent="VBoxContainer/TabContainer/SellTab/HSplitContainer/SellDetailsPanel/VBoxContainer"]
+layout_mode = 2
+text = "Description"
+autowrap_mode = 2
+
+[node name="PriceLabel" type="Label" parent="VBoxContainer/TabContainer/SellTab/HSplitContainer/SellDetailsPanel/VBoxContainer"]
+layout_mode = 2
+text = "Price"
+
+[node name="QuantityContainer" type="HBoxContainer" parent="VBoxContainer/TabContainer/SellTab/HSplitContainer/SellDetailsPanel/VBoxContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="VBoxContainer/TabContainer/SellTab/HSplitContainer/SellDetailsPanel/VBoxContainer/QuantityContainer"]
+layout_mode = 2
+text = "Quantity:"
+
+[node name="QuantitySpinBox" type="SpinBox" parent="VBoxContainer/TabContainer/SellTab/HSplitContainer/SellDetailsPanel/VBoxContainer/QuantityContainer"]
+layout_mode = 2
+min_value = 1.0
+value = 1.0
+
+[node name="TotalPriceLabel" type="Label" parent="VBoxContainer/TabContainer/SellTab/HSplitContainer/SellDetailsPanel/VBoxContainer"]
+layout_mode = 2
+text = "Total Price"
+
+[node name="SellButton" type="Button" parent="VBoxContainer/TabContainer/SellTab/HSplitContainer/SellDetailsPanel/VBoxContainer"]
+layout_mode = 2
+text = "Sell"

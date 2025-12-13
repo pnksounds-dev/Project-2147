@@ -22,7 +22,7 @@ var _middle_layout_full: Dictionary = {}
 @onready var audio_manager: AudioManager = get_node_or_null("/root/AudioManager")
 
 # Home panel references
-@onready var _motd_text: RichTextLabel = get_node_or_null("CanvasLayer/Middle/MotdPanel/MotdVBox/MotdText")
+@onready var _motd_text: RichTextLabel = get_node_or_null("CanvasLayer/Middle/GameStats/StatsVBox/StatText")
 
 # Bottom bar containers for context-aware UI
 @onready var _home_bar: HBoxContainer = get_node_or_null("CanvasLayer/BottomBarContainer/HomeBar")
@@ -170,7 +170,7 @@ func _switch_mode(new_mode: int, button: Button = null):
 		Mode.INVENTORY:
 			_show_inventory_panel()  # Special case for inventory
 		Mode.SHOP:
-			_show_shop_panel()  # Special case for shop
+			pass  # Special case for shop
 		Mode.CHANGELOG:
 			pass  # Panel handled by _set_active_tab
 		Mode.DEBUG:
@@ -841,21 +841,23 @@ func _on_shop_pressed() -> void:
 	_switch_mode(Mode.SHOP, _get_button("ShopButton"))
 
 func _show_shop_panel() -> void:
-	"""Show the shop panel in the middle layout"""
-	# Clear middle container first
+	"""Show the shop panel in the middle layout without destroying Home content."""
 	var middle = get_node_or_null("CanvasLayer/Middle")
 	if not middle:
 		return
 	
-	# Remove existing children
-	for child in middle.get_children():
-		child.queue_free()
+	# Reuse existing ShopPanel if present, otherwise instance a new one
+	var shop_panel = middle.get_node_or_null("ShopPanel")
+	if not shop_panel or not is_instance_valid(shop_panel):
+		var shop_scene: PackedScene = preload("res://scenes/ShopPanel.tscn")
+		shop_panel = shop_scene.instantiate()
+		shop_panel.name = "ShopPanel"
+		middle.add_child(shop_panel)
 	
-	# Instance the shop panel scene
-	var shop_scene = preload("res://scenes/ShopPanel.tscn")
-	var shop_panel = shop_scene.instantiate()
-	shop_panel.name = "ShopPanel"
-	middle.add_child(shop_panel)
+	# Hide other middle children; show only the shop panel
+	for child in middle.get_children():
+		if child is Control:
+			child.visible = (child == shop_panel)
 
 func _on_quit_pressed() -> void:
 	if audio_manager:

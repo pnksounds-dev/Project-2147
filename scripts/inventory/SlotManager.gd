@@ -11,13 +11,13 @@ signal slots_updated()
 
 const ItemSlotScene: PackedScene = preload("res://scenes/UI/ItemSlot.tscn")
 
-var _inventory_container: GridContainer
+var _inventory_container: Control
 var _weapon_container: HBoxContainer
 var _passive_container: HBoxContainer
 var _consumable_container: HBoxContainer
 var _inventory_state: InventoryState
 
-func initialize(inventory_container: GridContainer, weapon_container: HBoxContainer, 
+func initialize(inventory_container: Control, weapon_container: HBoxContainer, 
 				passive_container: HBoxContainer, consumable_container: HBoxContainer,
 				inventory_state: InventoryState) -> void:
 	_inventory_container = inventory_container
@@ -113,8 +113,8 @@ func update_cargo_slots(filter: String = "all", _slot_size: float = 64.0) -> voi
 			continue
 		
 		# Keep consistent slot size and transform
-		slot_node.custom_minimum_size = Vector2(64, 64)
-		slot_node.size = Vector2(64, 64)
+		slot_node.custom_minimum_size = Vector2(_slot_size, _slot_size)
+		slot_node.size = Vector2(_slot_size, _slot_size)
 		slot_node.scale = Vector2.ONE
 		
 		# Set slot properties

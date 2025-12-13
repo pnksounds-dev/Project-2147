@@ -68,7 +68,7 @@ func _generate_new_stock() -> void:
 			current_stock.append(id)
 	
 	# Update timestamp
-	last_refresh_timestamp = Time.get_unix_time_from_system()
+	last_refresh_timestamp = int(Time.get_unix_time_from_system())
 	
 	# Save state
 	_save_stock_state()

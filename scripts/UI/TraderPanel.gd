@@ -28,6 +28,11 @@ var trader_items := {
 }
 var current_offer: Dictionary = {}
 
+# Trade session state (foundation for two-column trading flow)
+var ark_offers: Array = [] # Items the ARK will give to the player this trade
+var player_offers: Array = [] # Items the player will give to the ARK this trade
+var coins_delta: int = 0 # Net coin change for the player (negative = player pays, positive = player receives)
+
 func _ready():
 	add_to_group("trader_panel")
 	
@@ -52,6 +57,7 @@ func _ready():
 	_generate_trader_items()
 	_create_trader_slots()
 	_update_footer()
+	_reset_trade_session()
 
 func open():
 	"""Open the trader panel"""
@@ -61,7 +67,31 @@ func open():
 func close():
 	"""Close the trader panel"""
 	hide()
+	_reset_trade_session()
 	closed.emit()
+
+func _reset_trade_session() -> void:
+	ark_offers.clear()
+	player_offers.clear()
+	coins_delta = 0
+
+func _recalculate_trade_values() -> void:
+	# Placeholder logic for future two-column trade summary
+	var player_value := 0
+	for offer in player_offers:
+		var price = int(offer.get("price", 0))
+		var quantity = int(offer.get("quantity", 1))
+		player_value += price * quantity
+
+	var ark_value := 0
+	for offer in ark_offers:
+		var price = int(offer.get("price", 0))
+		var quantity = int(offer.get("quantity", 1))
+		ark_value += price * quantity
+
+	coins_delta = player_value - ark_value
+	# For now just log; future UI will show this in a summary panel
+	print("TraderPanel trade session: player_value=", player_value, ", ark_value=", ark_value, ", coins_delta=", coins_delta)
 
 func is_open() -> bool:
 	"""Check if trader panel is open"""
@@ -189,8 +219,13 @@ func _create_trader_slot(item_data: Dictionary, _container_width: float) -> Cont
 	
 	if not icon_loaded:
 		var rarity_color = _get_rarity_color(item_data.get("rarity", "Common"))
-		icon_texture.color = rarity_color
-	vbox.add_child(icon_texture)
+		# Create a ColorRect to show the rarity color
+		var color_rect = ColorRect.new()
+		color_rect.size = Vector2(32, 32)  # Match your desired size
+		color_rect.color = rarity_color
+		vbox.add_child(color_rect)
+	else:
+		vbox.add_child(icon_texture)
 	
 	# Item name
 	var name_label = Label.new()
@@ -278,8 +313,31 @@ func _on_slot_gui_input(event: InputEvent, item_data: Dictionary) -> void:
 	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
 		current_offer = item_data
 		_update_footer()
+		# Add selected offer to ARK side of trade session (quantity 1 for now)
+		_add_ark_offer(item_data)
+		_recalculate_trade_values()
 		if audio_manager and audio_manager.has_method("play_ui_sound"):
 			audio_manager.play_ui_sound("button_click")
+
+func _add_ark_offer(item_data: Dictionary) -> void:
+	var item_id: String = item_data.get("id", "")
+	if item_id.is_empty():
+		return
+
+	# Try to merge with existing entry
+	for offer in ark_offers:
+		if offer.get("id", "") == item_id:
+			offer["quantity"] = int(offer.get("quantity", 1)) + 1
+			return
+
+	# New entry
+	var new_offer: Dictionary = {
+		"id": item_id,
+		"category": item_data.get("category", ""),
+		"price": int(item_data.get("price", 0)),
+		"quantity": 1
+	}
+	ark_offers.append(new_offer)
 
 func update_display():
 	"""Update the trader display"""

@@ -551,7 +551,28 @@ func _create_offer_from_item_id(item_id: String, price: int, category: String, i
 		"rarity": "Common"
 	}
 	
-	# Try to enrich with ItemDatabase data
+	# Try to enrich with ItemCatalog data first (read-only integration)
+	var item_catalog = get_node_or_null("/root/ItemCatalog")
+	if item_catalog and item_catalog.has_method("get_item_display_info"):
+		var info = item_catalog.get_item_display_info(item_id)
+		if not info.is_empty():
+			var info_name = info.get("display_name", "")
+			if not String(info_name).is_empty():
+				offer.name = info_name
+			var info_desc = info.get("description", "")
+			if not String(info_desc).is_empty():
+				offer.description = info_desc
+			var info_icon = info.get("icon", null)
+			if info_icon != null:
+				offer.icon = info_icon
+			var info_icon_path = info.get("icon_path", "")
+			if not String(info_icon_path).is_empty():
+				offer.icon_path = info_icon_path
+			var info_rarity = info.get("rarity", "")
+			if not String(info_rarity).is_empty():
+				offer.rarity = info_rarity
+	
+	# Fallback: enrich with ItemDatabase data (existing behavior preserved)
 	if item_db and item_db.has_method("has_item") and item_db.has_method("get_item") and item_db.has_item(item_id):
 		var item_obj = item_db.get_item(item_id)
 		if item_obj:

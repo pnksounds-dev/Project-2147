@@ -1,0 +1,112 @@
+[gd_scene load_steps=7 format=3]
+
+[node name="ArkTradingPanel" type="Control"]
+layout_mode = 3
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+layout_mode = 2
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="TitleLabel" type="Label" parent="VBoxContainer"]
+layout_mode = 2
+text = "trading"
+horizontal_alignment = 1
+
+[node name="HSplitContainer" type="HSplitContainer" parent="VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="PlayerPanel" type="Panel" parent="VBoxContainer/HSplitContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="PlayerVBox" type="VBoxContainer" parent="VBoxContainer/HSplitContainer/PlayerPanel"]
+layout_mode = 2
+anchor_right = 1.0
+anchor_bottom = 1.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="PlayerLabel" type="Label" parent="VBoxContainer/HSplitContainer/PlayerPanel/PlayerVBox"]
+layout_mode = 2
+text = "player inventory"
+
+[node name="PlayerScroll" type="ScrollContainer" parent="VBoxContainer/HSplitContainer/PlayerPanel/PlayerVBox"]
+layout_mode = 2
+size_flags_vertical = 3
+size_flags_horizontal = 3
+
+[node name="PlayerGrid" type="GridContainer" parent="VBoxContainer/HSplitContainer/PlayerPanel/PlayerVBox/PlayerScroll"]
+layout_mode = 2
+columns = 4
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="TraderPanel" type="Panel" parent="VBoxContainer/HSplitContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="TraderVBox" type="VBoxContainer" parent="VBoxContainer/HSplitContainer/TraderPanel"]
+layout_mode = 2
+anchor_right = 1.0
+anchor_bottom = 1.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="TraderLabel" type="Label" parent="VBoxContainer/HSplitContainer/TraderPanel/TraderVBox"]
+layout_mode = 2
+text = "trader inventory"
+
+[node name="TraderHSplit" type="HSplitContainer" parent="VBoxContainer/HSplitContainer/TraderPanel/TraderVBox"]
+layout_mode = 2
+size_flags_vertical = 3
+size_flags_horizontal = 3
+
+[node name="BuyColumn" type="VBoxContainer" parent="VBoxContainer/HSplitContainer/TraderPanel/TraderVBox/TraderHSplit"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="BuyLabel" type="Label" parent="VBoxContainer/HSplitContainer/TraderPanel/TraderVBox/TraderHSplit/BuyColumn"]
+layout_mode = 2
+text = "buy"
+
+[node name="BuyScroll" type="ScrollContainer" parent="VBoxContainer/HSplitContainer/TraderPanel/TraderVBox/TraderHSplit/BuyColumn"]
+layout_mode = 2
+size_flags_vertical = 3
+size_flags_horizontal = 3
+
+[node name="BuyGrid" type="GridContainer" parent="VBoxContainer/HSplitContainer/TraderPanel/TraderVBox/TraderHSplit/BuyColumn/BuyScroll"]
+layout_mode = 2
+columns = 4
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="SellColumn" type="VBoxContainer" parent="VBoxContainer/HSplitContainer/TraderPanel/TraderVBox/TraderHSplit"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="SellLabel" type="Label" parent="VBoxContainer/HSplitContainer/TraderPanel/TraderVBox/TraderHSplit/SellColumn"]
+layout_mode = 2
+text = "sell"
+
+[node name="SellScroll" type="ScrollContainer" parent="VBoxContainer/HSplitContainer/TraderPanel/TraderVBox/TraderHSplit/SellColumn"]
+layout_mode = 2
+size_flags_vertical = 3
+size_flags_horizontal = 3
+
+[node name="SellGrid" type="GridContainer" parent="VBoxContainer/HSplitContainer/TraderPanel/TraderVBox/TraderHSplit/SellColumn/SellScroll"]
+layout_mode = 2
+columns = 4
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="BottomHBox" type="HBoxContainer" parent="VBoxContainer"]
+layout_mode = 2
+alignment = 1
+
+[node name="ConfirmButton" type="Button" parent="VBoxContainer/BottomHBox"]
+layout_mode = 2
+text = "confirm"

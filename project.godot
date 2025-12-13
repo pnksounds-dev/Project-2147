@@ -27,6 +27,8 @@ GameState="*res://scripts/GameState.gd"
 InventoryState="*res://scripts/InventoryState.gd"
 AudioManager="*res://scripts/AudioManager.gd"
 EconomySystem="*res://scripts/EconomySystem.gd"
+MarketManager="*res://scripts/MarketManager.gd"
+ItemCatalog="*res://scripts/economy/ItemCatalog.gd"
 
 [display]
 
